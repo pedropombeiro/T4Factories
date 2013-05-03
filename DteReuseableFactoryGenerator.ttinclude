@@ -8,61 +8,71 @@
 <#+ 
 public class DteFactoryTemplate : Template
 {
-	private Type concreteType;
-	private Type contractType;
+	private EnvDTE.CodeClass concreteType;
+	private EnvDTE.CodeInterface contractType;
 	private string folderName;
 
-	public DteFactoryTemplate()
+	private IEnumerable<EnvDTE.CodeClass> allClasses;
+	private IEnumerable<EnvDTE.CodeInterface> allInterfaces;
+
+	public static AutomationHelper VisualStudioHelper;
+
+	public DteFactoryTemplate(EnvDTE.Project project)
+		: this(string.Empty)
     {
-		this.folderName = string.Empty;
     }
 
 	public DteFactoryTemplate(string folderName)
     {
 		this.folderName = folderName;
+
+		var project = VisualStudioHelper.CurrentProject;
+
+		this.allClasses = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementClass, false).Cast<EnvDTE.CodeClass>();
+		this.allInterfaces = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementInterface, false).Cast<EnvDTE.CodeInterface>();
     }
 
 	public DteFactoryTemplate GenerateFactoryFor(string concreteClassName)
     {
-		this.concreteType = concreteClassName;
+		this.concreteType = this.allClasses.Single(x => x.Name == concreteClassName);
 
 		return this;
     }
 
 	public void WithContract(string contractInterfaceName)
     {
-		this.contractType = typeof(TContract);
+		this.contractType = this.allInterfaces.Single(x => x.Name == contractInterfaceName);
 		this.RenderToFile(System.IO.Path.Combine(this.folderName, string.Format("{0}Factory.g.cs", concreteType.Name)));
     }
 
-	public void Render(Type concreteType, Type contractType)
+	public void Render()
     {
-		this.concreteType = concreteType;
-		this.contractType = contractType;
 		this.RenderToFile(System.IO.Path.Combine(this.folderName, string.Format("{0}Factory.g.cs", concreteType.Name)));
     }
 
     public override string TransformText()
     {
 #>
-<#+var constructors = concreteType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);string FactoryContractType = string.Format("I{0}Factory", concreteType.Name);string FactoryType = string.Format("{0}Factory", concreteType.Name);#>
-namespace T4Factories
+<#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(x => x.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor);
+string FactoryContractType = string.Format("I{0}Factory", concreteType.Name);
+string FactoryType = string.Format("{0}Factory", concreteType.Name);#>
+namespace <#=contractType.Namespace.FullName#>
 {
 	public interface <#=FactoryContractType#>
 	{
-    <#+foreach (var constructorInfo in constructors){var parameters = constructorInfo.GetParameters();#>
-    <#=contractType#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.ParameterType, parameter.Name)))#>);
+    <#+foreach (var constructor in constructors){var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
+    <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>);
     <#+}#>
 }
 
     public class <#=FactoryType#> : <#=FactoryContractType#>
     {
-<#+foreach (var constructorInfo in constructors)
+<#+foreach (var constructor in constructors)
 {
-var parameters = constructorInfo.GetParameters();#>
-		public <#=contractType#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.ParameterType, parameter.Name)))#>)
+var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
+		public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>)
 		{
-			return new <#=concreteType#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
+			return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
 		}
 
 <#+}#>

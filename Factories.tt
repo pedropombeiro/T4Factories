@@ -2,19 +2,15 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 <#@ include file="VisualStudioAutomationHelper.ttinclude" #>
-<#FactoryTemplate template = new FactoryTemplate("Factories");
+<#DteFactoryTemplate.VisualStudioHelper = VisualStudioHelper;
 
-// get a reference to the project of this t4 template
-var project = VisualStudioHelper.CurrentProject;
-
-// get all class items from the code model
-var allClasses = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementInterface, false);
-
-#><#= allClasses.Single(x => x.Name == "IDateTime").FullName #><#
-
+DteFactoryTemplate template = new DteFactoryTemplate("Factories");
+template.GenerateFactoryFor("Class1")
+		.WithContract("IClass1");
+/*FactoryTemplate template = new FactoryTemplate("Factories");
 template.GenerateFactoryFor<System.Security.Principal.GenericPrincipal>()
 		.WithContract<System.Security.Principal.IPrincipal>();
 template.GenerateFactoryFor<DateTime>()
-		.WithContract<DateTime>();#>
+		.WithContract<DateTime>();*/#>
 
-<#@ include file="ReuseableFactoryGenerator.ttinclude"#>
+<#@ include file="DteReuseableFactoryGenerator.ttinclude"#>
