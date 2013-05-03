@@ -1,0 +1,75 @@
+﻿<#@ assembly name="System.Core" #>
+<#@ include file="T4Toolbox.tt" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ IntelliSenseLanguage processor="tangibleT4Editor" language="C#" #>
+<#+ 
+public class FactoryTemplate : Template
+{
+	private Type concreteType;
+	private Type contractType;
+	private string folderName;
+
+	public FactoryTemplate()
+    {
+		this.folderName = string.Empty;
+    }
+
+	public FactoryTemplate(string folderName)
+    {
+		this.folderName = folderName;
+    }
+
+	public FactoryTemplate GenerateFactoryFor<TContract>()
+    {
+		this.concreteType = typeof(TContract);
+
+		return this;
+    }
+
+	public void WithContract<TContract>()
+    {
+		this.contractType = typeof(TContract);
+		this.RenderToFile(System.IO.Path.Combine(this.folderName, string.Format("{0}Factory.g.cs", concreteType.Name)));
+    }
+
+	public void Render(Type concreteType, Type contractType)
+    {
+		this.concreteType = concreteType;
+		this.contractType = contractType;
+		this.RenderToFile(System.IO.Path.Combine(this.folderName, string.Format("{0}Factory.g.cs", concreteType.Name)));
+    }
+
+    public override string TransformText()
+    {
+#>
+<#+var constructors = concreteType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);string FactoryContractType = string.Format("I{0}Factory", concreteType.Name);string FactoryType = string.Format("{0}Factory", concreteType.Name);#>
+namespace T4Factories
+{
+	public interface <#=FactoryContractType#>
+	{
+    <#+foreach (var constructorInfo in constructors){var parameters = constructorInfo.GetParameters();#>
+    <#=contractType#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.ParameterType, parameter.Name)))#>);
+    <#+}#>
+}
+
+    public class <#=FactoryType#> : <#=FactoryContractType#>
+    {
+<#+foreach (var constructorInfo in constructors)
+{
+var parameters = constructorInfo.GetParameters();#>
+		public <#=contractType#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.ParameterType, parameter.Name)))#>)
+		{
+			return new <#=concreteType#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
+		}
+
+<#+}#>
+	}
+}
+<#+
+        return this.GenerationEnvironment.ToString();
+    }
+}
+#>
