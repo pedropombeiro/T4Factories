@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
+using T4Factories.Contracts;
 
-namespace T4Factories
+namespace T4Factories.Models
 {
     public class Class1 : IClass1
     {
@@ -36,9 +34,5 @@ namespace T4Factories
             _param1 = param1;
             _now = now;
         }
-    }
-
-    public interface IClass1
-    {
     }
 }

@@ -65,12 +65,22 @@ public class DteFactoryTemplate : CSharpTemplate
 		this.RenderToFile(fileName);
     }
 
+	private string RenderXmlDoc(string docComment)
+    {
+		return string.Join(string.Format("\n{0}/// ", TextTransformation.CurrentIndent),
+						  docComment.Replace("<doc>", string.Empty)
+									.Replace("</doc>", string.Empty)
+									.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+					 .TrimEnd()
+					 .Remove(0, 2);
+    }
+
     public override string TransformText()
     {
 #>
 <#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(x => x.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor);
-string FactoryContractType = string.Format("I{0}Factory", concreteType.Name);
-string FactoryType = string.Format("{0}Factory", concreteType.Name);#>
+string factoryContractType = string.Format("{0}Factory", this.contractType.Name);
+string factoryType = string.Format("{0}Factory", concreteType.Name);#>
 namespace <#=this.codeNamespace.FullName#>
 {
 <#+
@@ -80,7 +90,7 @@ namespace <#=this.codeNamespace.FullName#>
 	using <#=this.concreteType.Namespace.FullName#>;
 
 	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
-	public interface <#=FactoryContractType#>
+	public interface <#=factoryContractType#>
 	{
 <#+
 		PushIndent("        ");
@@ -106,7 +116,7 @@ namespace <#=this.codeNamespace.FullName#>
 	using <#=this.contractType.Namespace.FullName#>;
 
 	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
-    public class <#=FactoryType#> : <#=FactoryContractType#>
+    public class <#=factoryType#> : <#=factoryContractType#>
     {
 <#+
 		PushIndent("        ");
@@ -134,16 +144,6 @@ public <#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(para
 }
 <#+
         return this.GenerationEnvironment.ToString();
-    }
-
-	private string RenderXmlDoc(string docComment)
-    {
-		return string.Join(string.Format("\n{0}/// ", TextTransformation.CurrentIndent),
-						  docComment.Replace("<doc>", string.Empty)
-									.Replace("</doc>", string.Empty)
-									.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-					 .TrimEnd()
-					 .Remove(0, 2);
     }
 }
 #>
