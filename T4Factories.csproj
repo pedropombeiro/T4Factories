@@ -38,24 +38,26 @@
     <None Include="Factories.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Factories.cs</LastGenOutput>
+      <FormatOutput>True</FormatOutput>
       <LastOutputs>
-.\Factories\DateTimeFactory.g.cs
-.\Factories\GenericPrincipalFactory.g.cs
+.\Contracts\IClass1Factory.g.cs
+.\Models\Class1Factory.g.cs
 </LastOutputs>
     </None>
     <None Include="ReuseableFactoryGenerator.ttinclude" />
     <None Include="VisualStudioAutomationHelper.ttinclude" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Contracts\IClass1.cs" />
+    <Compile Include="Contracts\IClass1Factory.g.cs" />
     <Compile Include="Factories.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Factories.tt</DependentUpon>
     </Compile>
-    <Compile Include="Factories\DateTimeFactory.g.cs" />
-    <Compile Include="Factories\GenericPrincipalFactory.g.cs" />
     <Compile Include="IDateTime.cs" />
+    <Compile Include="Models\Class1.cs" />
+    <Compile Include="Models\Class1Factory.g.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
