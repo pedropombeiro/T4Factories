@@ -6,7 +6,7 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ IntelliSenseLanguage processor="tangibleT4Editor" language="C#" #>
 <#+ 
-public class DteFactoryTemplate : Template
+public class DteFactoryTemplate : CSharpTemplate
 {
 	private EnvDTE.CodeClass concreteType;
 	private EnvDTE.CodeInterface contractType;
@@ -15,9 +15,10 @@ public class DteFactoryTemplate : Template
 	private IEnumerable<EnvDTE.CodeClass> allClasses;
 	private IEnumerable<EnvDTE.CodeInterface> allInterfaces;
 
+	public static TextTransformation TextTransformation;
 	public static AutomationHelper VisualStudioHelper;
 
-	public DteFactoryTemplate(EnvDTE.Project project)
+	public DteFactoryTemplate()
 		: this(string.Empty)
     {
     }
@@ -45,11 +46,6 @@ public class DteFactoryTemplate : Template
 		this.RenderToFile(System.IO.Path.Combine(this.folderName, string.Format("{0}Factory.g.cs", concreteType.Name)));
     }
 
-	public void Render()
-    {
-		this.RenderToFile(System.IO.Path.Combine(this.folderName, string.Format("{0}Factory.g.cs", concreteType.Name)));
-    }
-
     public override string TransformText()
     {
 #>
@@ -60,24 +56,49 @@ namespace <#=contractType.Namespace.FullName#>
 {
 	public interface <#=FactoryContractType#>
 	{
-    <#+foreach (var constructor in constructors){var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
-	<#=this.RenderXmlDoc(constructor.DocComment)#>
-    <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>);
-    <#+}#>
-}
+<#+
+	PushIndent("        ");
+	var index = 0;
+	foreach (var constructor in constructors)
+	{
+		var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();
+		if (index++ > 0)
+        {
+#><#=string.Empty#>
+<#+
+        }
+#>
+<#=this.RenderXmlDoc(constructor.DocComment)#>
+<#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>);
+<#+
+	}
+	PopIndent();
+#>
+	}
 
     public class <#=FactoryType#> : <#=FactoryContractType#>
     {
-<#+foreach (var constructor in constructors)
+<#+
+PushIndent("        ");
+index = 0;
+foreach (var constructor in constructors)
 {
-var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
-        <#=this.RenderXmlDoc(constructor.DocComment)#>
-		public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>)
-		{
-			return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
-		}
-
-<#+}#>
+var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();
+if (index++ > 0)
+{
+#><#=string.Empty#>
+<#+
+}
+#>
+<#=this.RenderXmlDoc(constructor.DocComment)#>
+public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>)
+{
+	return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
+}
+<#+
+	}
+	PopIndent();
+#>
 	}
 }
 <#+
@@ -86,11 +107,12 @@ var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
 
 	private string RenderXmlDoc(string docComment)
     {
-		return string.Join("\n    /// ",
+		return string.Join(string.Format("\n{0}/// ", TextTransformation.CurrentIndent),
 						  docComment.Replace("<doc>", string.Empty)
 									.Replace("</doc>", string.Empty)
 									.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-					 .TrimEnd();
+					 .TrimEnd()
+					 .Remove(0, 2);
     }
 }
 #>
