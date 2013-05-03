@@ -61,6 +61,7 @@ namespace <#=contractType.Namespace.FullName#>
 	public interface <#=FactoryContractType#>
 	{
     <#+foreach (var constructor in constructors){var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
+	<#=this.RenderXmlDoc(constructor.DocComment)#>
     <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>);
     <#+}#>
 }
@@ -70,6 +71,7 @@ namespace <#=contractType.Namespace.FullName#>
 <#+foreach (var constructor in constructors)
 {
 var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
+        <#=this.RenderXmlDoc(constructor.DocComment)#>
 		public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsFullName, parameter.FullName)))#>)
 		{
 			return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
@@ -80,6 +82,15 @@ var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();#>
 }
 <#+
         return this.GenerationEnvironment.ToString();
+    }
+
+	private string RenderXmlDoc(string docComment)
+    {
+		return string.Join("\n    /// ",
+						  docComment.Replace("<doc>", string.Empty)
+									.Replace("</doc>", string.Empty)
+									.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+					 .TrimEnd();
     }
 }
 #>
