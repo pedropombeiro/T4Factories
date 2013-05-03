@@ -61,7 +61,7 @@ public class DteFactoryTemplate : CSharpTemplate
     {
 		this.activeRenderer = renderer;
 		this.codeNamespace = codeType.Namespace;
-		var fileName = System.IO.Path.Combine(Path.GetDirectoryName(codeType.ProjectItem.FileNames[0]), string.Format("{0}Factory.g.cs", codeType.Name));
+		var fileName = System.IO.Path.Combine(Path.GetDirectoryName(codeType.ProjectItem.FileNames[0]), string.Format("{0}Factory.Generated.cs", codeType.Name));
 		this.RenderToFile(fileName);
     }
 
