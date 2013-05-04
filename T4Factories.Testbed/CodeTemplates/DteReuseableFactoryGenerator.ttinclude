@@ -111,12 +111,13 @@ public class DteFactoryTemplate : CSharpTemplate
 
 	private string RenderXmlDoc(string docComment)
     {
-		return string.Join(string.Format("\n{0}/// ", TextTransformation.CurrentIndent),
-						  docComment.Replace("<doc>", string.Empty)
+		var docXml = string.Join(string.Format("\n{0}/// ", TextTransformation.CurrentIndent),
+								 docComment.Trim()
+						            .Replace("<doc>", string.Empty)
 									.Replace("</doc>", string.Empty)
 									.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-					 .TrimEnd()
-					 .Remove(0, 2);
+						  .TrimEnd();
+		return string.IsNullOrEmpty(docXml) ? string.Empty : docXml.Remove(0, 2);
     }
 
 	private void WriteUsingsRequiredFor(EnvDTE.CodeElement codeElement)
