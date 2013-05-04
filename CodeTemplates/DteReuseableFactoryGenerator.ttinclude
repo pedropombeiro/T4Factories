@@ -43,17 +43,13 @@ public class DteFactoryTemplate : CSharpTemplate
 		return this.GenerateFactoryFor(this.allClasses.Single(x => x.Name == concreteClassName));
     }
 
-	private DteFactoryTemplate GenerateFactoryFor(EnvDTE.CodeClass concreteType)
-    {
-		this.concreteType = concreteType;
-		return this;
-    }
-
 	public void GenerateFactoriesForAttributedClasses()
     {
 		Func<EnvDTE.CodeAttribute, bool> predicate = (a => a.FullName == "T4Factories.GenerateT4FactoryWithContractAttribute");
 
-		foreach (var codeClass in this.allClasses.Where(x => x.Attributes.Cast<EnvDTE.CodeAttribute>().Any(predicate)))
+		foreach (var codeClass in from codeClass in this.allClasses 
+									where codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Any(predicate)
+								  select codeClass)
 		{
 			var codeAttribute = codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Single(predicate);
 			var contractName = codeAttribute.Value.StartsWith("typeof(") ? codeAttribute.Value.Substring(7).TrimEnd(')') : string.Format("I{0}", codeClass.Name);
@@ -73,14 +69,19 @@ public class DteFactoryTemplate : CSharpTemplate
 		var factoryCodeInterface = (from codeInterface in this.allInterfaces
 									where codeInterface.FullName == factoryInterfaceFullName
 									let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
-									let generatedCodeAttribute = attributes.SingleOrDefault(a => a.FullName == "System.CodeDom.Compiler.GeneratedCodeAttribute")
-									where generatedCodeAttribute == null
+									where !attributes.Any(a => a.FullName == "System.CodeDom.Compiler.GeneratedCodeAttribute")
 									select codeInterface)
 									.SingleOrDefault();
 		if (factoryCodeInterface == null)
 		{
 			this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType);
         }
+    }
+
+	private DteFactoryTemplate GenerateFactoryFor(EnvDTE.CodeClass concreteType)
+    {
+		this.concreteType = concreteType;
+		return this;
     }
 
 	private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType)
