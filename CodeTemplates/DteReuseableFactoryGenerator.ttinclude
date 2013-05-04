@@ -87,9 +87,9 @@ public class DteFactoryTemplate : CSharpTemplate
 		return factoryInterfaceFullName;
     }
 
-	private static string GetFactoryInterfaceName(EnvDTE.CodeInterface contractType)
+	private static string GetFactoryInterfaceName(EnvDTE.CodeClass concreteType)
     {
-		var factoryInterfaceName = string.Format("{0}Factory", contractType.Name);
+		var factoryInterfaceName = string.Format("I{0}Factory", concreteType.Name);
 
 		return factoryInterfaceName;
     }
@@ -119,19 +119,65 @@ public class DteFactoryTemplate : CSharpTemplate
 					 .Remove(0, 2);
     }
 
+	private void WriteUsingsRequiredFor(EnvDTE.CodeElement codeElement)
+    {
+		var codeImports = codeElement.ProjectItem.FileCodeModel.CodeElements.OfType<EnvDTE80.CodeImport>();
+		foreach (var codeImport in codeImports)
+        {
+			WriteLine(string.Format("using {0};", codeImport.Namespace));
+        }
+    }
+
+	private string GetParameterModifiers(EnvDTE80.CodeParameter2 parameter)
+    {
+		var modifiers = new List<string>();
+
+		if (parameter.ParameterKind.HasFlag(EnvDTE80.vsCMParameterKind.vsCMParameterKindIn))
+		{
+			modifiers.Add("in");
+        }
+		if (parameter.ParameterKind.HasFlag(EnvDTE80.vsCMParameterKind.vsCMParameterKindRef))
+		{
+			modifiers.Add("ref");
+        }
+		if (parameter.ParameterKind.HasFlag(EnvDTE80.vsCMParameterKind.vsCMParameterKindOut))
+		{
+			modifiers.Add("out");
+        }
+
+		return string.Join(string.Empty, modifiers.Select(m => m + " "));
+    }
+
+	private string GetParameterDefinition(EnvDTE80.CodeParameter2 parameter)
+    {
+		var defaultValue = string.Empty;
+
+		if (parameter.ParameterKind.HasFlag(EnvDTE80.vsCMParameterKind.vsCMParameterKindOptional))
+		{
+			defaultValue = string.Format(" = {0}", parameter.DefaultValue);
+        }
+
+		return string.Format("{0}{1} {2}{3}", GetParameterModifiers(parameter), parameter.Type.AsString, parameter.FullName, defaultValue);
+    }
+
     public override string TransformText()
     {
 #>
-<#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(x => x.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor);
-string factoryContractTypeName = GetFactoryInterfaceName(this.contractType);
+<#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(f => f.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor && f.Access == EnvDTE.vsCMAccess.vsCMAccessPublic);
+string factoryContractTypeName = GetFactoryInterfaceName(this.concreteType);
 string factoryTypeName = GetFactoryClassName(this.concreteType);#>
 namespace <#=this.codeNamespace.FullName#>
 {
 <#+
 	if (this.activeRenderer == Renderer.FactoryInterface)
 	{
+		PushIndent("    ");
+		WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType);
 #>
-	using <#=this.concreteType.Namespace.FullName#>;
+using <#=this.concreteType.Namespace.FullName#>;
+<#+
+		PopIndent();
+#>
 
 	[<#=GeneratedCodeAttribute#>]
 	public interface <#=factoryContractTypeName#>
@@ -141,7 +187,7 @@ namespace <#=this.codeNamespace.FullName#>
 		var index = 0;
 		foreach (var constructor in constructors)
 		{
-			var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();
+			var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
 			if (index++ > 0)
 			{
 #><#=string.Empty#>
@@ -149,15 +195,18 @@ namespace <#=this.codeNamespace.FullName#>
 	        }
 #>
 <#=this.RenderXmlDoc(constructor.DocComment)#>
-<#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsString, parameter.FullName)))#>);
+<#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>);
 <#+
 		}
 		PopIndent();
     }
 	if (this.activeRenderer == Renderer.FactoryImplementation)
 	{
+		PushIndent("    ");
+		WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType);
+		PopIndent();
 #>
-	using <#=this.contractType.Namespace.FullName#>;
+	using <#=this.concreteType.Namespace.FullName#>;
 
 	[<#=GeneratedCodeAttribute#>]
     public class <#=factoryTypeName#> : <#=factoryContractTypeName#>
@@ -167,7 +216,7 @@ namespace <#=this.codeNamespace.FullName#>
 		var index2 = 0;
 		foreach (var constructor in constructors)
 		{
-			var parameters = constructor.Parameters.Cast<EnvDTE.CodeParameter>();
+			var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
 			if (index2++ > 0)
 			{
 #><#=string.Empty#>
@@ -175,9 +224,9 @@ namespace <#=this.codeNamespace.FullName#>
 			}
 #>
 <#=this.RenderXmlDoc(constructor.DocComment)#>
-public <#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(parameter => string.Format("{0} {1}", parameter.Type.AsString, parameter.FullName)))#>)
+public <#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>)
 {
-	return new <#=concreteType.Name#>(<#=string.Join(", ", parameters.Select(parameter => parameter.Name))#>);
+	return new <#=concreteType.Name#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + parameter.Name))#>);
 }
 <#+
 		}

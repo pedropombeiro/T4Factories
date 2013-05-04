@@ -1,7 +1,7 @@
 ﻿<#@ template debug="true" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ import namespace="System.Linq" #>
 <#@ include file="VisualStudioAutomationHelper.ttinclude" #>
+<#@ include file="DteReuseableFactoryGenerator.ttinclude"#>
 <#
 // Required initialization
 DteFactoryTemplate.VisualStudioHelper = VisualStudioHelper;
@@ -21,5 +21,3 @@ template.GenerateFactoriesForAttributedClasses();
 		.WithContract<System.Security.Principal.IPrincipal>();
 template.GenerateFactoryFor<DateTime>()
 		.WithContract<DateTime>();*/#>
-
-<#@ include file="DteReuseableFactoryGenerator.ttinclude"#>
