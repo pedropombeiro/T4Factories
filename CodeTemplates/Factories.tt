@@ -3,15 +3,21 @@
 <#@ import namespace="System.Linq" #>
 <#@ include file="VisualStudioAutomationHelper.ttinclude" #>
 <#
+// Required initialization
 DteFactoryTemplate.VisualStudioHelper = VisualStudioHelper;
 DteFactoryTemplate.TextTransformation = this;
 
-DteFactoryTemplate template = new DteFactoryTemplate();
+// Template instantiation
+var template = new DteFactoryTemplate();
+
+// Generate factories for each class marked with GenerateT4FactoryWithContractAttribute. Any existing factory contracts are preserved.
 template.GenerateFactoriesForAttributedClasses();
+
+// Manually generate factory for a given class and a given contract. The new files are created in the matching folders.
 /*template.GenerateFactoryFor("Class1")
 		.WithContract("IClass1");*/
-/*FactoryTemplate template = new FactoryTemplate("Factories");
-template.GenerateFactoryFor<System.Security.Principal.GenericPrincipal>()
+
+/*template.GenerateFactoryFor<System.Security.Principal.GenericPrincipal>()
 		.WithContract<System.Security.Principal.IPrincipal>();
 template.GenerateFactoryFor<DateTime>()
 		.WithContract<DateTime>();*/#>

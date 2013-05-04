@@ -1,12 +1,8 @@
 ﻿<#@ assembly name="System.Core" #>
 <#@ assembly name="System" #>
-//<#@ assembly name="System.Windows.Forms" #>
 <#@ include file="T4Toolbox.tt" #>
 <#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Text" #>
-<#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Collections.Generic" #>
-//<#@ import namespace="System.Windows.Forms" #>
 <#@ IntelliSenseLanguage processor="tangibleT4Editor" language="C#" #>
 <#+ 
 public class DteFactoryTemplate : CSharpTemplate
