@@ -34,30 +34,33 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="DteReuseableFactoryGenerator.ttinclude" />
-    <None Include="Factories.tt">
+    <None Include="CodeTemplates\DteReuseableFactoryGenerator.ttinclude" />
+    <None Include="CodeTemplates\Factories.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Factories.cs</LastGenOutput>
-      <FormatOutput>True</FormatOutput>
+      <FormatOutput>False</FormatOutput>
       <LastOutputs>
-.\Contracts\IClass1Factory.g.cs
-.\Models\Class1Factory.g.cs
+..\Contracts\IClass1Factory.Generated.cs
+..\Models\Class1Factory.Generated.cs
+.\Factories.cs
 </LastOutputs>
+      <TransformOnBuild>False</TransformOnBuild>
     </None>
-    <None Include="ReuseableFactoryGenerator.ttinclude" />
-    <None Include="VisualStudioAutomationHelper.ttinclude" />
+    <None Include="CodeTemplates\ReuseableFactoryGenerator.ttinclude" />
+    <None Include="CodeTemplates\VisualStudioAutomationHelper.ttinclude" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contracts\IClass1.cs" />
-    <Compile Include="Contracts\IClass1Factory.g.cs" />
-    <Compile Include="Factories.cs">
+    <Compile Include="CodeTemplates\Factories.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Factories.tt</DependentUpon>
     </Compile>
-    <Compile Include="IDateTime.cs" />
+    <Compile Include="Contracts\IClass1Factory.Generated.cs" />
+    <Compile Include="Contracts\IDateTime.cs" />
     <Compile Include="Models\Class1.cs" />
-    <Compile Include="Models\Class1Factory.g.cs" />
+    <Compile Include="GenerateT4FactoryWithContractAttribute.cs" />
+    <Compile Include="Models\Class1Factory.Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

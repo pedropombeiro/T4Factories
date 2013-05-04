@@ -1,18 +1,20 @@
 ﻿<#@ assembly name="System.Core" #>
 <#@ assembly name="System" #>
+//<#@ assembly name="System.Windows.Forms" #>
 <#@ include file="T4Toolbox.tt" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="System.Diagnostics.CodeAnalysis" #>
+//<#@ import namespace="System.Windows.Forms" #>
 <#@ IntelliSenseLanguage processor="tangibleT4Editor" language="C#" #>
 <#+ 
 public class DteFactoryTemplate : CSharpTemplate
 {
+	private const string GeneratedCodeAttribute = "System.CodeDom.Compiler.GeneratedCode(\"T4Factories\", \"0.1\")";
+
 	private EnvDTE.CodeClass concreteType;
 	private EnvDTE.CodeInterface contractType;
-	private string folderName;
 	private Renderer activeRenderer;
 
 	private EnvDTE.CodeNamespace codeNamespace;
@@ -29,14 +31,7 @@ public class DteFactoryTemplate : CSharpTemplate
     }
 
 	public DteFactoryTemplate()
-		: this(string.Empty)
     {
-    }
-
-	public DteFactoryTemplate(string folderName)
-    {
-		this.folderName = folderName;
-
 		var project = VisualStudioHelper.CurrentProject;
 
 		this.allClasses = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementClass, false).Cast<EnvDTE.CodeClass>();
@@ -45,8 +40,27 @@ public class DteFactoryTemplate : CSharpTemplate
 
 	public DteFactoryTemplate GenerateFactoryFor(string concreteClassName)
     {
-		this.concreteType = this.allClasses.Single(x => x.Name == concreteClassName);
+		return this.GenerateFactoryFor(this.allClasses.Single(x => x.Name == concreteClassName));
+    }
+
+	private DteFactoryTemplate GenerateFactoryFor(EnvDTE.CodeClass concreteType)
+    {
+		this.concreteType = concreteType;
 		return this;
+    }
+
+	public void GenerateFactoriesForAttributedClasses()
+    {
+		Func<EnvDTE.CodeAttribute, bool> predicate = (a => a.FullName == "T4Factories.GenerateT4FactoryWithContractAttribute");
+
+		foreach (var codeClass in this.allClasses.Where(x => x.Attributes.Cast<EnvDTE.CodeAttribute>().Any(predicate)))
+		{
+			var codeAttribute = codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Single(predicate);
+			var contractName = codeAttribute.Value.StartsWith("typeof(") ? codeAttribute.Value.Substring(7).TrimEnd(')') : string.Format("I{0}", codeClass.Name);
+
+			this.GenerateFactoryFor(codeClass)
+				.WithContract(contractName);
+		}
     }
 
 	public void WithContract(string contractInterfaceName)
@@ -54,7 +68,40 @@ public class DteFactoryTemplate : CSharpTemplate
 		this.contractType = this.allInterfaces.Single(x => x.Name == contractInterfaceName);
 
 		this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType);
-		this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType);
+
+		var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.contractType);
+		var factoryCodeInterface = (from codeInterface in this.allInterfaces
+									where codeInterface.FullName == factoryInterfaceFullName
+									let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
+									let generatedCodeAttribute = attributes.SingleOrDefault(a => a.FullName == "System.CodeDom.Compiler.GeneratedCodeAttribute")
+									where generatedCodeAttribute == null
+									select codeInterface)
+									.SingleOrDefault();
+		if (factoryCodeInterface == null)
+		{
+			this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType);
+        }
+    }
+
+	private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType)
+    {
+		var factoryInterfaceFullName = string.Format("{0}Factory", contractType.FullName);
+
+		return factoryInterfaceFullName;
+    }
+
+	private static string GetFactoryInterfaceName(EnvDTE.CodeInterface contractType)
+    {
+		var factoryInterfaceName = string.Format("{0}Factory", contractType.Name);
+
+		return factoryInterfaceName;
+    }
+
+	private static string GetFactoryClassName(EnvDTE.CodeClass concreteType)
+    {
+		var factoryClassName = string.Format("{0}Factory", concreteType.Name);
+
+		return factoryClassName;
     }
 
 	private void RenderFactoryForCodeElement(Renderer renderer, EnvDTE.CodeType codeType)
@@ -79,8 +126,8 @@ public class DteFactoryTemplate : CSharpTemplate
     {
 #>
 <#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(x => x.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor);
-string factoryContractType = string.Format("{0}Factory", this.contractType.Name);
-string factoryType = string.Format("{0}Factory", concreteType.Name);#>
+string factoryContractTypeName = GetFactoryInterfaceName(this.contractType);
+string factoryTypeName = GetFactoryClassName(this.concreteType);#>
 namespace <#=this.codeNamespace.FullName#>
 {
 <#+
@@ -89,8 +136,8 @@ namespace <#=this.codeNamespace.FullName#>
 #>
 	using <#=this.concreteType.Namespace.FullName#>;
 
-	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
-	public interface <#=factoryContractType#>
+	[<#=GeneratedCodeAttribute#>]
+	public interface <#=factoryContractTypeName#>
 	{
 <#+
 		PushIndent("        ");
@@ -115,8 +162,8 @@ namespace <#=this.codeNamespace.FullName#>
 #>
 	using <#=this.contractType.Namespace.FullName#>;
 
-	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
-    public class <#=factoryType#> : <#=factoryContractType#>
+	[<#=GeneratedCodeAttribute#>]
+    public class <#=factoryTypeName#> : <#=factoryContractTypeName#>
     {
 <#+
 		PushIndent("        ");

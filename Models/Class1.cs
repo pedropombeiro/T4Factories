@@ -3,6 +3,7 @@ using T4Factories.Contracts;
 
 namespace T4Factories.Models
 {
+    [GenerateT4FactoryWithContract]
     public class Class1 : IClass1
     {
         private readonly int _param1;

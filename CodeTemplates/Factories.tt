@@ -6,9 +6,10 @@
 DteFactoryTemplate.VisualStudioHelper = VisualStudioHelper;
 DteFactoryTemplate.TextTransformation = this;
 
-DteFactoryTemplate template = new DteFactoryTemplate("Factories");
-template.GenerateFactoryFor("Class1")
-		.WithContract("IClass1");
+DteFactoryTemplate template = new DteFactoryTemplate();
+template.GenerateFactoriesForAttributedClasses();
+/*template.GenerateFactoryFor("Class1")
+		.WithContract("IClass1");*/
 /*FactoryTemplate template = new FactoryTemplate("Factories");
 template.GenerateFactoryFor<System.Security.Principal.GenericPrincipal>()
 		.WithContract<System.Security.Principal.IPrincipal>();
