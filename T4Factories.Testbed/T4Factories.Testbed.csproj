@@ -5,13 +5,13 @@
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FD9A9BF4-8B3F-4AF8-BAFD-03A6D9BF0318}</ProjectGuid>
+    <ProjectGuid>{41F9FEE0-A2E5-4834-898F-1E6C2054B395}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>T4Factories</RootNamespace>
-    <AssemblyName>T4Factories</AssemblyName>
+    <RootNamespace>T4Factories.Testbed</RootNamespace>
+    <AssemblyName>T4Factories.Testbed</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile2</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile4</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
@@ -34,34 +34,36 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="CodeTemplates\DteReuseableFactoryGenerator.ttinclude" />
-    <None Include="CodeTemplates\Factories.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Factories.cs</LastGenOutput>
-      <FormatOutput>False</FormatOutput>
-      <LastOutputs>
-..\Contracts\IFooFactory.Generated.cs
-..\Models\FooFactory.Generated.cs
-.\Factories.cs
-</LastOutputs>
-      <TransformOnBuild>False</TransformOnBuild>
-    </None>
-    <None Include="CodeTemplates\ReuseableFactoryGenerator.ttinclude" />
-    <None Include="CodeTemplates\VisualStudioAutomationHelper.ttinclude" />
+    <ProjectReference Include="..\T4Factories\T4Factories.csproj">
+      <Project>{FD9A9BF4-8B3F-4AF8-BAFD-03A6D9BF0318}</Project>
+      <Name>T4Factories</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\IFoo.cs" />
     <Compile Include="CodeTemplates\Factories.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Factories.tt</DependentUpon>
     </Compile>
     <Compile Include="Contracts\IBar.cs" />
+    <Compile Include="Contracts\IFoo.cs" />
     <Compile Include="Contracts\IFooFactory.Generated.cs" />
     <Compile Include="Models\Foo.cs" />
-    <Compile Include="GenerateT4FactoryWithContractAttribute.cs" />
     <Compile Include="Models\FooFactory.Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeTemplates\DteReuseableFactoryGenerator.ttinclude" />
+    <None Include="CodeTemplates\Factories.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Factories.cs</LastGenOutput>
+      <LastOutputs>
+..\Contracts\IFooFactory.Generated.cs
+..\Models\FooFactory.Generated.cs
+.\Factories.cs
+</LastOutputs>
+    </None>
+    <None Include="CodeTemplates\VisualStudioAutomationHelper.ttinclude" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

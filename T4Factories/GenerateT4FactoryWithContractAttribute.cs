@@ -1,7 +1,7 @@
-using System;
-
 namespace T4Factories
 {
+    using System;
+
     /// <summary>
     /// This attribute tells the T4 template to automatically generate a factory for the type this attribute is applied to.
     /// </summary>
