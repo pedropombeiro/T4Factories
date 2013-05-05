@@ -61,7 +61,7 @@ public class DteFactoryTemplate : CSharpTemplate
 
 		this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType);
 
-		var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.contractType);
+		var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.concreteType);
 		var factoryCodeInterface = (from codeInterface in this.allInterfaces
 									where codeInterface.FullName == factoryInterfaceFullName
 									let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
@@ -80,9 +80,9 @@ public class DteFactoryTemplate : CSharpTemplate
 		return this;
     }
 
-	private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType)
+	private static string GetFactoryInterfaceFullName(EnvDTE.CodeClass concreteType)
     {
-		var factoryInterfaceFullName = string.Format("{0}Factory", contractType.FullName);
+		var factoryInterfaceFullName = string.Format("{0}.I{1}Factory", concreteType.Namespace.FullName, concreteType.Name);
 
 		return factoryInterfaceFullName;
     }
@@ -166,6 +166,7 @@ public class DteFactoryTemplate : CSharpTemplate
 #>
 <#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(f => f.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor && f.Access == EnvDTE.vsCMAccess.vsCMAccessPublic);
 string factoryContractTypeName = GetFactoryInterfaceName(this.concreteType);
+string factoryContractTypeFullName = GetFactoryInterfaceFullName(this.concreteType);
 string factoryTypeName = GetFactoryClassName(this.concreteType);#>
 namespace <#=this.codeNamespace.FullName#>
 {
@@ -196,7 +197,7 @@ using <#=this.concreteType.Namespace.FullName#>;
 	        }
 #>
 <#=this.RenderXmlDoc(constructor.DocComment)#>
-<#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>);
+<#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>);
 <#+
 		}
 		PopIndent();
@@ -210,7 +211,7 @@ using <#=this.concreteType.Namespace.FullName#>;
 	using <#=this.concreteType.Namespace.FullName#>;
 
 	[<#=GeneratedCodeAttribute#>]
-    public class <#=factoryTypeName#> : <#=factoryContractTypeName#>
+    public class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
     {
 <#+
 		PushIndent("        ");
@@ -225,9 +226,9 @@ using <#=this.concreteType.Namespace.FullName#>;
 			}
 #>
 <#=this.RenderXmlDoc(constructor.DocComment)#>
-public <#=contractType.Name#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>)
+public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>)
 {
-	return new <#=concreteType.Name#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + parameter.Name))#>);
+	return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + parameter.Name))#>);
 }
 <#+
 		}
