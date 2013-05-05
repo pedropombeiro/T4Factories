@@ -2,22 +2,27 @@
 <#@ assembly name="System.Core" #>
 <#@ include file="VisualStudioAutomationHelper.ttinclude" #>
 <#@ include file="ReuseableFactoryGenerator.ttinclude"#>
+
 <#
+//
+// Please edit Configuration.ttinclude to manually determine which factories to create, or simply resort to GenerateT4FactoryWithContractAttribute instead.
+//
+
+//
 // Required initialization
+//
 FactoryTemplate.VisualStudioHelper = VisualStudioHelper;
 FactoryTemplate.TextTransformation = this;
 
+//
 // Template instantiation
+//
 var template = new FactoryTemplate();
 
-// Generate factories for each class marked with GenerateT4FactoryWithContractAttribute. Any existing factory contracts are preserved.
+//
+// Generate a factory for each class marked with GenerateT4FactoryWithContractAttribute. Any existing handcrafted factory contracts are preserved.
+//
 template.GenerateFactoriesForAttributedClasses();
+#>
 
-// Manually generate factory for a given class and a given contract. The new files are created in the matching folders.
-/*template.GenerateFactoryFor("Class1")
-		.WithContract("IClass1");*/
-
-/*template.GenerateFactoryFor<System.Security.Principal.GenericPrincipal>()
-		.WithContract<System.Security.Principal.IPrincipal>();
-template.GenerateFactoryFor<DateTime>()
-		.WithContract<DateTime>();*/#>
+<#@ include file="Configuration.ttinclude"#>

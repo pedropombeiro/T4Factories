@@ -1,0 +1,15 @@
+﻿<#
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Uncomment the following code to instruct the T4 template to generate factory for a given class (Foo) and a given contract (IFoo).
+// The new files are created in the matching folders. The resulting factory gets names after the concrete type
+// (e.g. the factory for Foo will be named IFooFactory).
+
+//template.GenerateFactoryFor("Foo")
+//		.WithContract("IFoo");
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TODO: In the future, it will be possible to generate factories using .NET Reflection (for all assemblies except current one).
+
+//template.GenerateFactoryFor<DateTimeWrap>()
+//		.WithContract<IDateTime>();
+#>
