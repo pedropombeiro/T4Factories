@@ -53,7 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeTemplates\DteReuseableFactoryGenerator.ttinclude" />
+    <None Include="CodeTemplates\ReuseableFactoryGenerator.ttinclude" />
     <None Include="CodeTemplates\Factories.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Factories.cs</LastGenOutput>

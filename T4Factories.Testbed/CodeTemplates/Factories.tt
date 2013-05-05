@@ -1,14 +1,14 @@
 ﻿<#@ template debug="true" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ include file="VisualStudioAutomationHelper.ttinclude" #>
-<#@ include file="DteReuseableFactoryGenerator.ttinclude"#>
+<#@ include file="ReuseableFactoryGenerator.ttinclude"#>
 <#
 // Required initialization
-DteFactoryTemplate.VisualStudioHelper = VisualStudioHelper;
-DteFactoryTemplate.TextTransformation = this;
+FactoryTemplate.VisualStudioHelper = VisualStudioHelper;
+FactoryTemplate.TextTransformation = this;
 
 // Template instantiation
-var template = new DteFactoryTemplate();
+var template = new FactoryTemplate();
 
 // Generate factories for each class marked with GenerateT4FactoryWithContractAttribute. Any existing factory contracts are preserved.
 template.GenerateFactoriesForAttributedClasses();

@@ -5,7 +5,7 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ IntelliSenseLanguage processor="tangibleT4Editor" language="C#" #>
 <#+ 
-public class DteFactoryTemplate : CSharpTemplate
+public class FactoryTemplate : CSharpTemplate
 {
 	private const string GeneratedCodeAttribute = "System.CodeDom.Compiler.GeneratedCode(\"T4Factories\", \"0.1\")";
 
@@ -26,7 +26,7 @@ public class DteFactoryTemplate : CSharpTemplate
 		FactoryImplementation,
     }
 
-	public DteFactoryTemplate()
+	public FactoryTemplate()
     {
 		var project = VisualStudioHelper.CurrentProject;
 
@@ -34,7 +34,7 @@ public class DteFactoryTemplate : CSharpTemplate
 		this.allInterfaces = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementInterface, false).Cast<EnvDTE.CodeInterface>();
     }
 
-	public DteFactoryTemplate GenerateFactoryFor(string concreteClassName)
+	public FactoryTemplate GenerateFactoryFor(string concreteClassName)
     {
 		return this.GenerateFactoryFor(this.allClasses.Single(x => x.Name == concreteClassName));
     }
@@ -74,7 +74,7 @@ public class DteFactoryTemplate : CSharpTemplate
         }
     }
 
-	private DteFactoryTemplate GenerateFactoryFor(EnvDTE.CodeClass concreteType)
+	private FactoryTemplate GenerateFactoryFor(EnvDTE.CodeClass concreteType)
     {
 		this.concreteType = concreteType;
 		return this;

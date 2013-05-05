@@ -13,6 +13,6 @@
         /// <param name="bar">
         /// The service responsible for ...
         /// </param>
-        IFoo Create(T4Factories.Contracts.IBar bar);
+        T4Factories.Contracts.IFoo Create(T4Factories.Contracts.IBar bar);
 	}
 }
