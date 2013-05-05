@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>T4Factories</id>
+        <version>$version$</version>
+        <authors>pombeirp</authors>
+        <owners>Developer In The Flow</owners>
+        <licenseUrl>https://github.com/PombeirP/T4Factories/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/PombeirP/T4Factories</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>T4 Factories uses T4toolbox to generate factory contracts and factory implementations automatically, based on a concrete class and a base interface.</description>
+        <copyright>Copyright © Pedro Pombeiro 2013</copyright>
+        <language>en-US</language>
+        <tags>T4 automatic factories win8 winRT .net40 sl40 sl50</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System.Core" targetFramework="" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="T4Factories.Testbed\CodeTemplates\DteReuseableFactoryGenerator.ttinclude" target="content\CodeTemplates\FactoryGen\DteReuseableFactoryGenerator.ttinclude" />
+        <file src="T4Factories.Testbed\CodeTemplates\Factories.tt" target="content\CodeTemplates\FactoryGen\Factories.tt" />
+        <file src="T4Factories\bin\Release\T4Factories.dll" target="lib\portable-net4+sl4+wp7+win8\T4Factories.dll" />
+        <file src="T4Factories\bin\Release\T4Factories.pdb" target="lib\portable-net4+sl4+wp7+win8\T4Factories.pdb" />
+    </files>
+</package>
