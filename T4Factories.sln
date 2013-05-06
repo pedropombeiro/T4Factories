@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T4Factories", "T4Factories\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T4Factories.Testbed", "T4Factories.Testbed\T4Factories.Testbed.csproj", "{41F9FEE0-A2E5-4834-898F-1E6C2054B395}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T4Factories.NET4", "T4Factories\T4Factories.NET4.csproj", "{F5DB6744-5A89-405D-81C5-222615114E06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{41F9FEE0-A2E5-4834-898F-1E6C2054B395}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41F9FEE0-A2E5-4834-898F-1E6C2054B395}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41F9FEE0-A2E5-4834-898F-1E6C2054B395}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5DB6744-5A89-405D-81C5-222615114E06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5DB6744-5A89-405D-81C5-222615114E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5DB6744-5A89-405D-81C5-222615114E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5DB6744-5A89-405D-81C5-222615114E06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
