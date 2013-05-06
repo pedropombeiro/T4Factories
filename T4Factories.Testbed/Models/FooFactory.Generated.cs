@@ -2,7 +2,6 @@
 {
     using System;
     using T4Factories.Contracts;
-	using T4Factories.Models;
 
 	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
     public class FooFactory : T4Factories.Contracts.IFooFactory
