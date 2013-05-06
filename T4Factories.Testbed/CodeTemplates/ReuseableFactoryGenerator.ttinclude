@@ -61,7 +61,7 @@ public class FactoryTemplate : CSharpTemplate
 
 		this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType);
 
-		var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.concreteType);
+		var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.contractType, this.concreteType);
 		var factoryCodeInterface = (from codeInterface in this.allInterfaces
 									where codeInterface.FullName == factoryInterfaceFullName
 									let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
@@ -80,9 +80,9 @@ public class FactoryTemplate : CSharpTemplate
 		return this;
     }
 
-	private static string GetFactoryInterfaceFullName(EnvDTE.CodeClass concreteType)
+	private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType, EnvDTE.CodeClass concreteType)
     {
-		var factoryInterfaceFullName = string.Format("{0}.I{1}Factory", concreteType.Namespace.FullName, concreteType.Name);
+		var factoryInterfaceFullName = string.Format("{0}.I{1}Factory", contractType.Namespace.FullName, concreteType.Name);
 
 		return factoryInterfaceFullName;
     }
@@ -166,7 +166,7 @@ public class FactoryTemplate : CSharpTemplate
 #>
 <#+var constructors = concreteType.Members.OfType<EnvDTE.CodeFunction>().Where(f => f.FunctionKind == EnvDTE.vsCMFunction.vsCMFunctionConstructor && f.Access == EnvDTE.vsCMAccess.vsCMAccessPublic);
 string factoryContractTypeName = GetFactoryInterfaceName(this.concreteType);
-string factoryContractTypeFullName = GetFactoryInterfaceFullName(this.concreteType);
+string factoryContractTypeFullName = GetFactoryInterfaceFullName(this.contractType, this.concreteType);
 string factoryTypeName = GetFactoryClassName(this.concreteType);#>
 namespace <#=this.codeNamespace.FullName#>
 {

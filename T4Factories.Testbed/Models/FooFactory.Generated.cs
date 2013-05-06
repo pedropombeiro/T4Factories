@@ -5,7 +5,7 @@
 	using T4Factories.Models;
 
 	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
-    public class FooFactory : T4Factories.Models.IFooFactory
+    public class FooFactory : T4Factories.Contracts.IFooFactory
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Foo"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.
