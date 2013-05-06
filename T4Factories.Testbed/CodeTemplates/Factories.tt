@@ -1,7 +1,8 @@
-﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ include file="VisualStudioAutomationHelper.ttinclude" #>
 <#@ include file="ReuseableFactoryGenerator.ttinclude"#>
+<#@ output extension=".Generated.cs"#>
 
 <#
 //

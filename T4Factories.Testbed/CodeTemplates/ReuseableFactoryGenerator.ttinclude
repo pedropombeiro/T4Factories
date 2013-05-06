@@ -120,12 +120,19 @@ public class FactoryTemplate : CSharpTemplate
 		return string.IsNullOrEmpty(docXml) ? string.Empty : docXml.Remove(0, 2);
     }
 
-	private void WriteUsingsRequiredFor(EnvDTE.CodeElement codeElement)
+	private void WriteUsingsRequiredFor(EnvDTE.CodeElement codeElement, EnvDTE.CodeNamespace targetNamespace)
     {
-		var codeImports = codeElement.ProjectItem.FileCodeModel.CodeElements.OfType<EnvDTE80.CodeImport>();
-		foreach (var codeImport in codeImports)
+		var outerCodeElements = codeElement.ProjectItem.FileCodeModel.CodeElements;
+		var outerCodeImports = outerCodeElements.OfType<EnvDTE80.CodeImport>();
+		var innerCodeImports = outerCodeElements.OfType<EnvDTE.CodeNamespace>().SelectMany(x => x.Children.OfType<EnvDTE80.CodeImport>());
+		var excludedNamespaces = new[] { "T4Factories", targetNamespace.FullName };
+		foreach (var namespaceFullName in outerCodeImports.Concat(innerCodeImports)
+													      .Select(x => x.Namespace)
+														  .Concat(new[] { this.concreteType.Namespace.FullName })
+														  .Distinct()
+														  .Except(excludedNamespaces))
         {
-			WriteLine(string.Format("using {0};", codeImport.Namespace));
+			WriteLine(string.Format("using {0};", namespaceFullName));
         }
     }
 
@@ -174,10 +181,7 @@ namespace <#=this.codeNamespace.FullName#>
 	if (this.activeRenderer == Renderer.FactoryInterface)
 	{
 		PushIndent("    ");
-		WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType);
-#>
-using <#=this.concreteType.Namespace.FullName#>;
-<#+
+		WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType, this.codeNamespace);
 		PopIndent();
 #>
 
@@ -205,10 +209,9 @@ using <#=this.concreteType.Namespace.FullName#>;
 	if (this.activeRenderer == Renderer.FactoryImplementation)
 	{
 		PushIndent("    ");
-		WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType);
+		WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType, this.codeNamespace);
 		PopIndent();
 #>
-	using <#=this.concreteType.Namespace.FullName#>;
 
 	[<#=GeneratedCodeAttribute#>]
     public class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
