@@ -17,10 +17,13 @@
         </frameworkAssemblies>
     </metadata>
     <files>
+        <file src="T4Factories.Testbed\CodeTemplates\Configuration.ttinclude" target="content\CodeTemplates\T4Factories\Configuration.ttinclude" />
         <file src="T4Factories.Testbed\CodeTemplates\Factories.tt" target="content\CodeTemplates\T4Factories\Factories.tt" />
         <file src="T4Factories.Testbed\CodeTemplates\ReuseableFactoryGenerator.ttinclude" target="content\CodeTemplates\T4Factories\ReuseableFactoryGenerator.ttinclude" />
         <file src="content\CodeTemplates\T4Factories\VisualStudioAutomationHelper.ttinclude" target="content\CodeTemplates\T4Factories\VisualStudioAutomationHelper.ttinclude" />
-        <file src="T4Factories\bin\Release\T4Factories.dll" target="lib\portable-net4+sl4+wp7+win8\T4Factories.dll" />
-        <file src="T4Factories\bin\Release\T4Factories.pdb" target="lib\portable-net4+sl4+wp7+win8\T4Factories.pdb" />
+        <file src="T4Factories\bin\net40\Release\T4Factories.dll" target="lib\net\T4Factories.dll" />
+        <file src="T4Factories\bin\net40\Release\T4Factories.pdb" target="lib\net\T4Factories.pdb" />
+        <file src="lib\portable-sl4+wp7+win8\T4Factories.dll" target="lib\portable-sl4+wp7+win8\T4Factories.dll" />
+        <file src="lib\portable-sl4+wp7+win8\T4Factories.pdb" target="lib\portable-sl4+wp7+win8\T4Factories.pdb" />
     </files>
 </package>

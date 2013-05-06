@@ -136,6 +136,16 @@ public class FactoryTemplate : CSharpTemplate
         }
     }
 
+    private string GetParameterAttributes(EnvDTE.CodeParameter parameter)
+    {
+		if (parameter.Attributes.Count == 0)
+        {
+			return string.Empty;
+        }
+
+		return string.Format("[{0}] ", string.Join(", ", from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>() select attribute.Name));
+    }
+
     private string GetParameterModifiers(EnvDTE80.CodeParameter2 parameter)
     {
         var modifiers = new List<string>();
@@ -165,7 +175,7 @@ public class FactoryTemplate : CSharpTemplate
             defaultValue = string.Format(" = {0}", parameter.DefaultValue);
         }
 
-        return string.Format("{0}{1} {2}{3}", GetParameterModifiers(parameter), parameter.Type.AsString, parameter.FullName, defaultValue);
+        return string.Format("{0}{1}{2} {3}{4}", GetParameterAttributes(parameter), GetParameterModifiers(parameter), parameter.Type.AsString, parameter.FullName, defaultValue);
     }
 
     public override string TransformText()
