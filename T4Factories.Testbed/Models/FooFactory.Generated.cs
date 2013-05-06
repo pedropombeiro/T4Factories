@@ -3,7 +3,8 @@
     using System;
     using T4Factories.Contracts;
 
-	[System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
+    [global::System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public class FooFactory : T4Factories.Contracts.IFooFactory
     {
         /// <summary>
@@ -14,7 +15,7 @@
         /// </param>
         public T4Factories.Contracts.IFoo Create(T4Factories.Contracts.IBar bar)
         {
-        	return new T4Factories.Models.Foo(bar);
+            return new T4Factories.Models.Foo(bar);
         }
-	}
+    }
 }
