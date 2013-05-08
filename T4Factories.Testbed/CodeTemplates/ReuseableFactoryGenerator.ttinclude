@@ -9,7 +9,7 @@ public class FactoryTemplate : CSharpTemplate
 {
     private const string GeneratedCodeAttribute = "global::System.CodeDom.Compiler.GeneratedCode(\"T4Factories\", \"0.1\")";
 
-    private EnvDTE.CodeClass concreteType;
+    private EnvDTE80.CodeClass2 concreteType;
     private EnvDTE.CodeInterface contractType;
     private Renderer activeRenderer;
 
@@ -36,7 +36,7 @@ public class FactoryTemplate : CSharpTemplate
 
     public FactoryTemplate GenerateFactoryFor(string concreteClassName)
     {
-        return this.GenerateFactoryFor(this.allClasses.Single(x => x.Name == concreteClassName));
+        return this.GenerateFactoryFor((EnvDTE80.CodeClass2)this.allClasses.Single(x => x.Name == concreteClassName));
     }
 
     public void GenerateFactoriesForAttributedClasses()
@@ -45,7 +45,7 @@ public class FactoryTemplate : CSharpTemplate
 
         foreach (var codeClass in from codeClass in this.allClasses 
                                   where codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Any(predicate)
-                                  select codeClass)
+                                  select (EnvDTE80.CodeClass2)codeClass)
         {
             var codeAttribute = codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Single(predicate);
             var attributeValue = codeAttribute.Value.Trim();
@@ -75,29 +75,35 @@ public class FactoryTemplate : CSharpTemplate
         }
     }
 
-    private FactoryTemplate GenerateFactoryFor(EnvDTE.CodeClass concreteType)
+    private FactoryTemplate GenerateFactoryFor(EnvDTE80.CodeClass2 concreteType)
     {
         this.concreteType = concreteType;
+
         return this;
     }
 
-    private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType, EnvDTE.CodeClass concreteType)
+    private static string GetGenericArguments(EnvDTE80.CodeClass2 codeClass)
     {
-        var factoryInterfaceFullName = string.Format("{0}.I{1}Factory", contractType.Namespace.FullName, concreteType.Name);
+        return codeClass.IsGeneric ? codeClass.FullName.Substring(codeClass.FullName.IndexOf('<')) : string.Empty;
+    }
+
+    private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType, EnvDTE80.CodeClass2 concreteType)
+    {
+        var factoryInterfaceFullName = string.Format("{0}.I{1}Factory{2}", contractType.Namespace.FullName, concreteType.Name, GetGenericArguments(concreteType));
 
         return factoryInterfaceFullName;
     }
 
-    private static string GetFactoryInterfaceName(EnvDTE.CodeClass concreteType)
+    private static string GetFactoryInterfaceName(EnvDTE80.CodeClass2 concreteType)
     {
-        var factoryInterfaceName = string.Format("I{0}Factory", concreteType.Name);
+        var factoryInterfaceName = string.Format("I{0}Factory{1}", concreteType.Name, GetGenericArguments(concreteType));
 
         return factoryInterfaceName;
     }
 
-    private static string GetFactoryClassName(EnvDTE.CodeClass concreteType)
+    private static string GetFactoryClassName(EnvDTE80.CodeClass2 concreteType)
     {
-        var factoryClassName = string.Format("{0}Factory", concreteType.Name);
+        var factoryClassName = string.Format("{0}Factory{1}", concreteType.Name, GetGenericArguments(concreteType));
 
         return factoryClassName;
     }
@@ -176,7 +182,7 @@ public class FactoryTemplate : CSharpTemplate
             defaultValue = string.Format(" = {0}", parameter.DefaultValue);
         }
 
-        return string.Format("{0}{1}{2} {3}{4}", GetParameterAttributes(parameter), GetParameterModifiers(parameter), parameter.Type.AsString, parameter.FullName, defaultValue);
+        return string.Format("{0}{1}{2} {3}{4}", GetParameterAttributes(parameter), GetParameterModifiers(parameter), parameter.Type.AsFullName, parameter.FullName, defaultValue);
     }
 
     public override string TransformText()
