@@ -1,4 +1,4 @@
-﻿namespace T4Factories.Models
+﻿namespace T4Factories.Testbed.Models
 {
     using System;
     using T4Factories.Testbed.Contracts;
@@ -15,7 +15,7 @@
         /// </param>
         public T4Factories.Testbed.Contracts.IFoo<T> Create(T bar)
         {
-            return new T4Factories.Models.Foo<T>(bar);
+            return new T4Factories.Testbed.Models.Foo<T>(bar);
         }
     }
 }

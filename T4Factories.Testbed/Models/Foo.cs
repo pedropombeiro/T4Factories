@@ -3,7 +3,7 @@
 //   © 2012-2013 Pedro Pombeiro
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-namespace T4Factories.Models
+namespace T4Factories.Testbed.Models
 {
     using System;
 

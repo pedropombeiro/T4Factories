@@ -1,7 +1,7 @@
 ﻿namespace T4Factories.Testbed.Contracts
 {
     using System;
-    using T4Factories.Models;
+    using T4Factories.Testbed.Models;
 
     [global::System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
     public interface IFooFactory<T>

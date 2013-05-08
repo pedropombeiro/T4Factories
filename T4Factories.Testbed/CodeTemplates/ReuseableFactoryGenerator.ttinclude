@@ -36,7 +36,18 @@ public class FactoryTemplate : CSharpTemplate
 
     public FactoryTemplate GenerateFactoryFor(string concreteClassName)
     {
-        return this.GenerateFactoryFor((EnvDTE80.CodeClass2)this.allClasses.Single(x => x.Name == concreteClassName));
+        EnvDTE80.CodeClass2 codeClass;
+
+        try 
+        {
+            codeClass = (EnvDTE80.CodeClass2)(this.allClasses.SingleOrDefault(x => x.Name == concreteClassName) ?? this.allClasses.Single(x => x.FullName == concreteClassName));
+        }
+        catch (InvalidOperationException)
+        {
+            throw new InvalidOperationException(string.Format("{0} class not found in current project", concreteClassName));
+        }
+
+        return this.GenerateFactoryFor(codeClass);
     }
 
     public void GenerateFactoriesForAttributedClasses()
@@ -58,7 +69,14 @@ public class FactoryTemplate : CSharpTemplate
 
     public void WithContract(string contractInterfaceName)
     {
-        this.contractType = this.allInterfaces.Single(x => x.Name == contractInterfaceName);
+        try 
+        {
+            this.contractType = this.allInterfaces.SingleOrDefault(x => x.Name == contractInterfaceName) ?? this.allInterfaces.Single(x => x.FullName == contractInterfaceName);
+        }
+        catch (InvalidOperationException)
+        {
+            throw new InvalidOperationException(string.Format("{0} interface not found in current project", contractInterfaceName));
+        }
 
         this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType);
 
