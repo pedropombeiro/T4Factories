@@ -48,7 +48,8 @@ public class FactoryTemplate : CSharpTemplate
                                   select codeClass)
         {
             var codeAttribute = codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Single(predicate);
-            var contractName = codeAttribute.Value.StartsWith("typeof(") ? codeAttribute.Value.Substring(7).TrimEnd(')') : string.Format("I{0}", codeClass.Name);
+            var attributeValue = codeAttribute.Value.Trim();
+            var contractName = attributeValue.StartsWith("typeof(") ? attributeValue.Substring(7).TrimEnd(')') : string.Format("I{0}", codeClass.Name);
 
             this.GenerateFactoryFor(codeClass)
                 .WithContract(contractName);
@@ -138,12 +139,12 @@ public class FactoryTemplate : CSharpTemplate
 
     private string GetParameterAttributes(EnvDTE.CodeParameter parameter)
     {
-		if (parameter.Attributes.Count == 0)
+        if (parameter.Attributes.Count == 0)
         {
-			return string.Empty;
+            return string.Empty;
         }
 
-		return string.Format("[{0}] ", string.Join(", ", from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>() select attribute.Name));
+        return string.Format("[{0}] ", string.Join(", ", from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>() select attribute.Name));
     }
 
     private string GetParameterModifiers(EnvDTE80.CodeParameter2 parameter)
