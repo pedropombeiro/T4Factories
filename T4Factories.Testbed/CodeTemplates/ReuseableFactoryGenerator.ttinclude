@@ -28,10 +28,8 @@ public class FactoryTemplate : CSharpTemplate
 
     public FactoryTemplate()
     {
-        var project = VisualStudioHelper.CurrentProject;
-
-        this.allClasses = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementClass, false).Cast<EnvDTE.CodeClass>();
-        this.allInterfaces = VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementInterface, false).Cast<EnvDTE.CodeInterface>();
+        this.allClasses = VisualStudioHelper.GetAllCodeElementsOfType(VisualStudioHelper.CurrentProject.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementClass, false).Cast<EnvDTE.CodeClass>().ToArray();
+        this.allInterfaces = VisualStudioHelper.GetAllProjects().SelectMany(project => VisualStudioHelper.GetAllCodeElementsOfType(project.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementInterface, true)).Cast<EnvDTE.CodeInterface>().ToArray();
     }
 
     public FactoryTemplate GenerateFactoryFor(string concreteClassName)
