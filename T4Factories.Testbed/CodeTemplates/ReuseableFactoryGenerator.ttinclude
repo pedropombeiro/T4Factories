@@ -220,7 +220,12 @@ public class FactoryTemplate : CSharpTemplate
             defaultValue = string.Format(" = {0}", parameter.DefaultValue);
         }
 
-        return string.Format("{0}{1}{2} {3}{4}", GetParameterAttributes(parameter), GetParameterModifiers(parameter), parameter.Type.AsFullName, parameter.FullName, defaultValue);
+        return string.Format("{0}{1}{2} {3}{4}", 
+                             GetParameterAttributes(parameter), 
+                             GetParameterModifiers(parameter), 
+                             string.IsNullOrEmpty(parameter.Type.AsFullName) ? parameter.Type.AsString : parameter.Type.AsFullName, 
+                             parameter.FullName, 
+                             defaultValue);
     }
 
     public override string TransformText()
