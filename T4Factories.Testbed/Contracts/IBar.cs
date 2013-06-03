@@ -1,4 +1,9 @@
-﻿namespace T4Factories.Contracts
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IBar.cs" company="Developer In The Flow">
+//   © 2012-2013 Pedro Pombeiro
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+namespace T4Factories.Contracts
 {
     public interface IBar
     {

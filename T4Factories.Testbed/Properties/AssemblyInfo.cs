@@ -1,5 +1,11 @@
-﻿using System.Resources;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="Developer In The Flow">
+//   © 2012-2013 Pedro Pombeiro
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System.Reflection;
+using System.Resources;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
