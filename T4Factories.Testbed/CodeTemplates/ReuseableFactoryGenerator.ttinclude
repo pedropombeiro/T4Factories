@@ -138,12 +138,12 @@ public class FactoryTemplate : CSharpTemplate
 
     private string GetParameterAttributes(EnvDTE.CodeParameter parameter)
     {
-		if (parameter.Attributes.Count == 0)
+        if (parameter.Attributes.Count == 0)
         {
-			return string.Empty;
+            return string.Empty;
         }
 
-		return string.Format("[{0}] ", string.Join(", ", from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>() select attribute.Name));
+        return string.Format("[{0}] ", string.Join(", ", from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>() select attribute.Name));
     }
 
     private string GetParameterModifiers(EnvDTE80.CodeParameter2 parameter)
@@ -196,7 +196,7 @@ namespace <#=this.codeNamespace.FullName#>
 #>
 
     [<#=GeneratedCodeAttribute#>]
-    public interface <#=factoryContractTypeName#>
+    public partial interface <#=factoryContractTypeName#>
     {
 <#+
         PushIndent("        ");
@@ -225,7 +225,7 @@ namespace <#=this.codeNamespace.FullName#>
 
     [<#=GeneratedCodeAttribute#>]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
+    public partial class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
     {
 <#+
         PushIndent("        ");

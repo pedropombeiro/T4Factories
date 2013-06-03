@@ -5,7 +5,7 @@
 
     [global::System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public class FooFactory : T4Factories.Contracts.IFooFactory
+    public partial class FooFactory : T4Factories.Contracts.IFooFactory
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Foo"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.

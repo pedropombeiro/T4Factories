@@ -4,7 +4,7 @@
     using T4Factories.Models;
 
     [global::System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
-    public interface IFooFactory
+    public partial interface IFooFactory
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Foo"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.
