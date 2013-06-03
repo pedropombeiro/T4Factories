@@ -76,7 +76,7 @@ public class FactoryTemplate : CSharpTemplate
             throw new InvalidOperationException(string.Format("{0} interface not found in current project", contractInterfaceName));
         }
 
-        this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType, GetFactoryClassName(this.concreteType));
+        this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType, GetSafeFileName(GetFactoryClassName(this.concreteType)));
 
         var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.contractType, this.concreteType);
         var factoryCodeInterface = (from codeInterface in this.allInterfaces
@@ -87,8 +87,13 @@ public class FactoryTemplate : CSharpTemplate
                                     .SingleOrDefault();
         if (factoryCodeInterface == null)
         {
-            this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType, GetFactoryInterfaceName(this.concreteType));
+            this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType, GetSafeFileName(GetFactoryInterfaceName(this.concreteType)));
         }
+    }
+
+    private string GetSafeFileName(string identifier)
+    {
+        return identifier.Contains("<") ? identifier.Substring(0, identifier.IndexOf("<")) : identifier;
     }
 
     private FactoryTemplate GenerateFactoryFor(EnvDTE80.CodeClass2 concreteType)
@@ -129,8 +134,17 @@ public class FactoryTemplate : CSharpTemplate
         this.activeRenderer = renderer;
         this.codeNamespace = codeType.Namespace;
 
-        var folderPath = Path.GetDirectoryName(codeType.ProjectItem.FileNames[0]);
-        var fileName = System.IO.Path.Combine(folderPath, string.Format("{0}.Generated.cs", factoryName));
+        string fileName = string.Format("{0}.Generated.cs", factoryName);
+        try
+        {
+            var folderPath = Path.GetDirectoryName(codeType.ProjectItem.FileNames[0]);
+            fileName = System.IO.Path.Combine(folderPath, fileName);
+        }
+        catch(ArgumentException e)
+        {
+            throw new ArgumentException(string.Format("Could not generate file {0}.", fileName), e);
+        }
+
         this.RenderToFile(fileName);
     }
 

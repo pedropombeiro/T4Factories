@@ -42,7 +42,8 @@ namespace T4Factories.Testbed.Models
         /// <param name="dateTime">
         /// The object creation timestamp.
         /// </param>
-        private Foo(T bar, DateTime dateTime)
+        private Foo(T bar, 
+                    DateTime dateTime)
         {
             this.bar = bar;
             this.dateTime = dateTime;
