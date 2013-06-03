@@ -59,18 +59,18 @@ public class FactoryTemplate : CSharpTemplate
     {
         this.contractType = this.allInterfaces.Single(x => x.Name == contractInterfaceName);
 
-        this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType);
+        this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType, GetFactoryClassName(this.concreteType));
 
         var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.contractType, this.concreteType);
         var factoryCodeInterface = (from codeInterface in this.allInterfaces
                                     where codeInterface.FullName == factoryInterfaceFullName
                                     let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
-                                    where !attributes.Any(a => a.FullName.Contains( "System.CodeDom.Compiler.GeneratedCodeAttribute"))
+                                    where !attributes.Any(a => a.FullName.Contains("System.CodeDom.Compiler.GeneratedCodeAttribute"))
                                     select codeInterface)
                                     .SingleOrDefault();
         if (factoryCodeInterface == null)
         {
-            this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType);
+            this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType, GetFactoryInterfaceName(this.concreteType));
         }
     }
 
@@ -101,11 +101,13 @@ public class FactoryTemplate : CSharpTemplate
         return factoryClassName;
     }
 
-    private void RenderFactoryForCodeElement(Renderer renderer, EnvDTE.CodeType codeType)
+    private void RenderFactoryForCodeElement(Renderer renderer, EnvDTE.CodeType codeType, string factoryName)
     {
         this.activeRenderer = renderer;
         this.codeNamespace = codeType.Namespace;
-        var fileName = System.IO.Path.Combine(Path.GetDirectoryName(codeType.ProjectItem.FileNames[0]), string.Format("{0}Factory.Generated.cs", codeType.Name));
+
+        var folderPath = Path.GetDirectoryName(codeType.ProjectItem.FileNames[0]);
+        var fileName = System.IO.Path.Combine(folderPath, string.Format("{0}.Generated.cs", factoryName));
         this.RenderToFile(fileName);
     }
 
