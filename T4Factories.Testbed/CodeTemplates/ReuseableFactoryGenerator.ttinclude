@@ -3,7 +3,6 @@
 <#@ include file="T4Toolbox.tt" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ IntelliSenseLanguage processor="tangibleT4Editor" language="C#" #>
 <#+ 
 public class FactoryTemplate : CSharpTemplate
 {
