@@ -289,22 +289,31 @@ namespace <#=this.codeNamespace.FullName#>
     {
         PushIndent("    ");
         WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType, this.codeNamespace);
-        PopIndent();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Generate the factory interface
+        ////////////////////////////////////////////////////////////////////////////
 #>
 
-    [<#=GeneratedCodeAttribute#>]
-    public partial interface <#=factoryContractTypeName#>
-    {
+[<#=GeneratedCodeAttribute#>]
+public partial interface <#=factoryContractTypeName#>
+{
 <#+
-        PushIndent("        ");
+        PushIndent("    ");
         foreach (var constructor in constructors)
         {
             var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
 #>
+#region Factory Methods
 <#=this.RenderXmlDoc(constructor.DocComment)#>
 <#=contractType.FullName#> Create(<#+this.WriteParameterDefinitionList(parameters);#>;
 <#+
         }
+#>
+
+#endregion
+<#+
+        PopIndent();
         PopIndent();
     }
     if (this.activeRenderer == Renderer.FactoryImplementation)
@@ -312,6 +321,10 @@ namespace <#=this.codeNamespace.FullName#>
         PushIndent("    ");
         WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType, this.codeNamespace);
         PopIndent();
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Generate the factory implementation
+        ////////////////////////////////////////////////////////////////////////////
 #>
 
     [<#=GeneratedCodeAttribute#>]
@@ -329,6 +342,10 @@ namespace <#=this.codeNamespace.FullName#>
                                  select parameter).ToArray();
         if (injectedParameters.Any())
         {
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Declare the factory fields to be injected at construction time
+        ////////////////////////////////////////////////////////////////////////////
 #>
 #region Fields
 
@@ -348,6 +365,10 @@ private <#=GetParameterTypeFullName(injectedParameter)#> <#=injectedParameter.Fu
 public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters); WriteLine(string.Empty);#>
 {
 <#+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Generate the factory constructor (when there are fields to be injected at construction time)
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
     foreach (var injectedParameter in injectedParameters)
     {
 #>
@@ -364,6 +385,10 @@ public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters);
 #>
 #region Public Factory Methods
 <#+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        // Generate the factory methods (one for each public constructor on the target object)
+        //////////////////////////////////////////////////////////////////////////////////////////////
+
         foreach (var constructor in constructors)
         {
             var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
@@ -372,6 +397,10 @@ public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters);
                                   select parameter;
             if (!injectedParameters.Any())
             {
+                //////////////////////////////////////////////////////////////////////////////////////////////
+                // Include the documentation found in the target constructor (when there is a signature match)
+                //////////////////////////////////////////////////////////////////////////////////////////////
+
 #><#=this.RenderXmlDoc(constructor.DocComment)#><#+
             }
 #>
