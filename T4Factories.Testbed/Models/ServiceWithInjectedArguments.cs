@@ -37,12 +37,21 @@ namespace T4Factories.Testbed.Models
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceWithInjectedArguments" /> class.
         /// </summary>
+        /// <param name="value1">The first factory parameter.</param>
+        public ServiceWithInjectedArguments(int value1)
+        {
+            this.value1 = value1;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceWithInjectedArguments" /> class.
+        /// </summary>
         /// <param name="foo">The injected service.</param>
         /// <param name="value1">The first factory parameter.</param>
         /// <param name="value2">The second factory parameter.</param>
         public ServiceWithInjectedArguments(
             IFoo<int> foo, 
-            int value1,
+            int value1, 
             string value2)
         {
             this.foo = foo;

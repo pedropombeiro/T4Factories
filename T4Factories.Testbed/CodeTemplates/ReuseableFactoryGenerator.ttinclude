@@ -8,6 +8,8 @@ public class FactoryTemplate : CSharpTemplate
 {
     private const string GeneratedCodeAttribute = "global::System.CodeDom.Compiler.GeneratedCode(\"T4Factories\", \"0.1\")";
 
+    #region Fields
+
     private EnvDTE80.CodeClass2 concreteType;
     private EnvDTE.CodeInterface contractType;
     private Renderer activeRenderer;
@@ -25,6 +27,8 @@ public class FactoryTemplate : CSharpTemplate
         FactoryImplementation,
     }
 
+    #endregion
+
     public FactoryTemplate()
     {
         this.allClasses = VisualStudioHelper.GetAllCodeElementsOfType(VisualStudioHelper.CurrentProject.CodeModel.CodeElements, EnvDTE.vsCMElement.vsCMElementClass, false).Cast<EnvDTE.CodeClass>().ToArray();
@@ -36,6 +40,8 @@ public class FactoryTemplate : CSharpTemplate
                                        .Cast<EnvDTE.CodeInterface>()
                                        .ToArray();
     }
+
+    #region Public Methods
 
     public FactoryTemplate GenerateFactoryFor(string concreteClassName)
     {
@@ -96,9 +102,18 @@ public class FactoryTemplate : CSharpTemplate
         }
     }
 
+    #endregion
+
+    #region Methods
+
     private string GetSafeFileName(string identifier)
     {
         return identifier.Contains("<") ? identifier.Substring(0, identifier.IndexOf("<")) : identifier;
+    }
+
+    private string GetXmlDocSafeTypeName(string typeName)
+    {
+        return typeName.Replace("<", "{").Replace(">", "}");
     }
 
     private FactoryTemplate GenerateFactoryFor(EnvDTE80.CodeClass2 concreteType)
@@ -275,6 +290,8 @@ public class FactoryTemplate : CSharpTemplate
         PopIndent();
     }
 
+    #endregion
+
     public override string TransformText()
     {
 #>
@@ -295,6 +312,9 @@ namespace <#=this.codeNamespace.FullName#>
         ////////////////////////////////////////////////////////////////////////////
 #>
 
+/// <summary>
+/// The contract for the factory generating <see cref="<#=GetXmlDocSafeTypeName(contractType.FullName)#>" /> instances.
+/// </summary>
 [<#=GeneratedCodeAttribute#>]
 public partial interface <#=factoryContractTypeName#>
 {
@@ -320,19 +340,21 @@ public partial interface <#=factoryContractTypeName#>
     {
         PushIndent("    ");
         WriteUsingsRequiredFor((EnvDTE.CodeElement)this.concreteType, this.codeNamespace);
-        PopIndent();
 
         ////////////////////////////////////////////////////////////////////////////
         // Generate the factory implementation
         ////////////////////////////////////////////////////////////////////////////
 #>
 
-    [<#=GeneratedCodeAttribute#>]
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public partial class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
-    {
+/// <summary>
+/// The implementation for the factory generating <see cref="<#=GetXmlDocSafeTypeName(concreteType.FullName)#>" /> instances.
+/// </summary>
+[<#=GeneratedCodeAttribute#>]
+[global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+public partial class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
+{
 <#+
-        PushIndent("        ");
+        PushIndent("    ");
         var factoryContractType = this.allInterfaces.SingleOrDefault(x => x.FullName == factoryContractTypeFullName);
         var contractTypeMethods = factoryContractType != null ? factoryContractType.Members.OfType<EnvDTE.CodeFunction>() : Enumerable.Empty<EnvDTE.CodeFunction>();
         var allConstructorParameters = constructors.SelectMany(constructor => constructor.Parameters.Cast<EnvDTE80.CodeParameter2>());
@@ -410,11 +432,12 @@ public <#=contractType.FullName#> Create(<#+WriteParameterDefinitionList(inputPa
     return new <#=concreteType.FullName#>(<#+this.WriteParameterList(parameters, parameter => injectedParameters.Any(injectedParameter => CompareParameters(injectedParameter, parameter)));#>
 }
 <#+
-        }
+    }
 #>
 
 #endregion
 <#+
+        PopIndent();
         PopIndent();
     }
 #>
