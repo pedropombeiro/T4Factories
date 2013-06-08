@@ -6,6 +6,7 @@
     [global::System.CodeDom.Compiler.GeneratedCode("T4Factories", "0.1")]
     public partial interface IFooFactory<T>
     {
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Foo{T}"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.
         /// </summary>

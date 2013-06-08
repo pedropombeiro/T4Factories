@@ -39,8 +39,12 @@
     <Compile Include="Contracts\IBar.cs" />
     <Compile Include="Contracts\IFoo.cs" />
     <Compile Include="Contracts\IFooFactory.Generated.cs" />
+    <Compile Include="Contracts\IService.cs" />
+    <Compile Include="Contracts\IServiceWithInjectedArgumentsFactory.cs" />
     <Compile Include="Models\Foo.cs" />
     <Compile Include="Models\FooFactory.Generated.cs" />
+    <Compile Include="Models\ServiceWithInjectedArguments.cs" />
+    <Compile Include="Models\ServiceWithInjectedArgumentsFactory.Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +55,7 @@
       <LastOutputs>
 ..\Contracts\IFooFactory.Generated.cs
 ..\Models\FooFactory.Generated.cs
+..\Models\ServiceWithInjectedArgumentsFactory.Generated.cs
 .\Factories.Generated.cs
 </LastOutputs>
       <LastGenOutput>Factories.Generated.cs</LastGenOutput>

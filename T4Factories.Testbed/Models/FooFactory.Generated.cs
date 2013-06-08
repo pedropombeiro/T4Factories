@@ -7,6 +7,8 @@
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public partial class FooFactory<T> : T4Factories.Testbed.Contracts.IFooFactory<T>
     {
+        #region Public Factory Methods
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Foo{T}"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.
         /// </summary>
@@ -17,5 +19,7 @@
         {
             return new T4Factories.Testbed.Models.Foo<T>(bar);
         }
+        
+        #endregion
     }
 }

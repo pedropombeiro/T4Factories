@@ -155,13 +155,13 @@ public class FactoryTemplate : CSharpTemplate
 
     private string RenderXmlDoc(string docComment)
     {
-        var docXml = string.Join(string.Format("\n{0}/// ", TextTransformation.CurrentIndent),
+        var docXml = string.Join("\n/// ",
                                  docComment.Trim()
                                             .Replace("<doc>", string.Empty)
                                             .Replace("</doc>", string.Empty)
                                             .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                           .TrimEnd();
-        return string.IsNullOrEmpty(docXml) ? string.Empty : docXml.Remove(0, 2);
+        return string.IsNullOrEmpty(docXml) ? string.Empty : docXml;
     }
 
     private void WriteUsingsRequiredFor(EnvDTE.CodeElement codeElement, EnvDTE.CodeNamespace targetNamespace)
@@ -222,9 +222,57 @@ public class FactoryTemplate : CSharpTemplate
         return string.Format("{0}{1}{2} {3}{4}", 
                              GetParameterAttributes(parameter), 
                              GetParameterModifiers(parameter), 
-                             string.IsNullOrEmpty(parameter.Type.AsFullName) ? parameter.Type.AsString : parameter.Type.AsFullName, 
+                             GetParameterTypeFullName(parameter), 
                              parameter.FullName, 
                              defaultValue);
+    }
+
+    private string GetParameterTypeFullName(EnvDTE80.CodeParameter2 parameter)
+    {
+        return string.IsNullOrEmpty(parameter.Type.AsFullName) ? parameter.Type.AsString : parameter.Type.AsFullName;
+    }
+
+    private bool CompareParameters(EnvDTE80.CodeParameter2 parameter1, EnvDTE80.CodeParameter2 parameter2)
+    {
+        return (parameter1.FullName == parameter2.FullName);
+    }
+
+    private void WriteParameterDefinitionList(IEnumerable<EnvDTE80.CodeParameter2> parameters)
+    {
+        var parametersRepresentation = parameters.Select(parameter => GetParameterDefinition(parameter));
+        PushIndent("    ");
+        if (parameters.Count() > 1)
+        {
+            WriteLine(string.Empty);
+            Write(string.Join(", \r\n", parametersRepresentation));
+        }
+        else
+        {
+            Write(string.Join(", ", parametersRepresentation));
+        }
+        Write(")");
+        PopIndent();
+    }
+
+    private void WriteParameterList(IEnumerable<EnvDTE80.CodeParameter2> parameters, Func<EnvDTE80.CodeParameter2, bool> isField)
+    {
+        var parametersRepresentation = parameters.Select(parameter => 
+                string.Format("{0}{1}{2}", 
+                                isField(parameter) ? "this." : string.Empty,
+                                GetParameterModifiers(parameter), 
+                                parameter.Name));
+        PushIndent("        ");
+        if (parameters.Count() > 1)
+        {
+            WriteLine(string.Empty);
+            Write(string.Join(", \r\n", parametersRepresentation));
+        }
+        else
+        {
+            Write(string.Join(", ", parametersRepresentation));
+        }
+        WriteLine(");");
+        PopIndent();
     }
 
     public override string TransformText()
@@ -249,18 +297,12 @@ namespace <#=this.codeNamespace.FullName#>
     {
 <#+
         PushIndent("        ");
-        var index = 0;
         foreach (var constructor in constructors)
         {
             var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
-            if (index++ > 0)
-            {
-#><#=string.Empty#>
-<#+
-            }
 #>
 <#=this.RenderXmlDoc(constructor.DocComment)#>
-<#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>);
+<#=contractType.FullName#> Create(<#+this.WriteParameterDefinitionList(parameters);#>;
 <#+
         }
         PopIndent();
@@ -278,23 +320,72 @@ namespace <#=this.codeNamespace.FullName#>
     {
 <#+
         PushIndent("        ");
-        var index2 = 0;
+        var factoryContractType = this.allInterfaces.SingleOrDefault(x => x.FullName == factoryContractTypeFullName);
+        var contractTypeMethods = factoryContractType != null ? factoryContractType.Members.OfType<EnvDTE.CodeFunction>() : Enumerable.Empty<EnvDTE.CodeFunction>();
+        var allConstructorParameters = constructors.SelectMany(constructor => constructor.Parameters.Cast<EnvDTE80.CodeParameter2>());
+        var allContractMethodParameters = contractTypeMethods.SelectMany(contractTypeMethod => contractTypeMethod.Parameters.Cast<EnvDTE80.CodeParameter2>());
+        var injectedParameters = (from parameter in allConstructorParameters
+                                 where !allContractMethodParameters.Any(contractMethodParameter => CompareParameters(contractMethodParameter, parameter))
+                                 select parameter).ToArray();
+        if (injectedParameters.Any())
+        {
+#>
+#region Fields
+
+<#+
+    foreach (var injectedParameter in injectedParameters)
+    {
+#>
+private <#=GetParameterTypeFullName(injectedParameter)#> <#=injectedParameter.FullName#>;
+
+<#+
+    }
+#>
+#endregion
+
+#region Constructors
+
+public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters); WriteLine(string.Empty);#>
+{
+<#+
+    foreach (var injectedParameter in injectedParameters)
+    {
+#>
+    this.<#=injectedParameter.FullName#> = <#=injectedParameter.FullName#>;
+<#+
+    }
+#>
+}
+
+#endregion
+
+<#+
+        }
+#>
+#region Public Factory Methods
+<#+
         foreach (var constructor in constructors)
         {
             var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
-            if (index2++ > 0)
+            var inputParameters = from parameter in parameters
+                                  where !injectedParameters.Any(injectedParameter => injectedParameter.FullName == parameter.FullName)
+                                  select parameter;
+            if (!injectedParameters.Any())
             {
-#><#=string.Empty#>
-<#+
+#><#=this.RenderXmlDoc(constructor.DocComment)#><#+
             }
 #>
-<#=this.RenderXmlDoc(constructor.DocComment)#>
-public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>)
+
+public <#=contractType.FullName#> Create(<#+WriteParameterDefinitionList(inputParameters); WriteLine(string.Empty);#>
 {
-    return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + parameter.Name))#>);
+    return new <#=concreteType.FullName#>(<#+this.WriteParameterList(parameters, parameter => injectedParameters.Any(injectedParameter => CompareParameters(injectedParameter, parameter)));#>
 }
 <#+
         }
+#>
+
+#endregion
+<#+
         PopIndent();
     }
 #>
