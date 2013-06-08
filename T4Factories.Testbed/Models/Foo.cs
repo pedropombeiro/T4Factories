@@ -9,7 +9,7 @@ namespace T4Factories.Testbed.Models
 
     using T4Factories.Testbed.Contracts;
 
-    [GenerateT4FactoryWithContract]
+    [GenerateT4Factory]
     public class Foo<T> : IFoo<T>
     {
         #region Fields

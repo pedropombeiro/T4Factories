@@ -55,7 +55,7 @@ public class FactoryTemplate : CSharpTemplate
 
     public void GenerateFactoriesForAttributedClasses()
     {
-        Func<EnvDTE.CodeAttribute, bool> predicate = (a => a.FullName == "T4Factories.GenerateT4FactoryWithContractAttribute");
+        Func<EnvDTE.CodeAttribute, bool> predicate = (a => a.FullName == "T4Factories.GenerateT4FactoryAttribute");
 
         foreach (var codeClass in from codeClass in this.allClasses 
                                   where codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Any(predicate)

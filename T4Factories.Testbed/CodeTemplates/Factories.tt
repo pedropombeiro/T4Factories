@@ -6,7 +6,7 @@
 
 <#
 //
-// Please edit Configuration.ttinclude to manually determine which factories to create, or simply resort to GenerateT4FactoryWithContractAttribute instead.
+// Please edit Configuration.ttinclude to manually determine which factories to create, or simply resort to GenerateT4FactoryAttribute instead.
 //
 
 //
@@ -21,7 +21,7 @@ FactoryTemplate.TextTransformation = this;
 var template = new FactoryTemplate();
 
 //
-// Generate a factory for each class marked with GenerateT4FactoryWithContractAttribute. Any existing handcrafted factory contracts are preserved.
+// Generate a factory for each class marked with GenerateT4FactoryAttribute. Any existing handcrafted factory contracts are preserved.
 //
 template.GenerateFactoriesForAttributedClasses();
 #>

@@ -10,7 +10,7 @@ namespace T4Factories.Testbed.Models
     /// <summary>
     /// Demonstrates a service with injected arguments which do not appear in the factory method.
     /// </summary>
-    [T4Factories.GenerateT4FactoryWithContract(typeof(IService))]
+    [T4Factories.GenerateT4Factory(typeof(IService))]
     public class ServiceWithInjectedArguments : IService
     {
         #region Fields
