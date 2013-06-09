@@ -23,7 +23,8 @@ namespace T4Factories.Testbed.Models
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Foo{T}"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.
+        /// Initializes a new instance of the <see cref="Foo{T}"/> class.
+        /// The object creation timestamp defaults to <see cref="DateTime.Now"/>.
         /// </summary>
         /// <param name="bar">
         /// The service responsible for ...
