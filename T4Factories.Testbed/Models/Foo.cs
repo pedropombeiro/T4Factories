@@ -9,7 +9,7 @@ namespace T4Factories.Testbed.Models
 
     using T4Factories.Testbed.Contracts;
 
-    [GenerateT4FactoryWithContract]
+    [GenerateT4Factory]
     public class Foo<T> : IFoo<T>
     {
         #region Fields
@@ -23,7 +23,8 @@ namespace T4Factories.Testbed.Models
         #region Constructors and Destructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Foo{T}"/> class. The object creation timestamp defaults to <see cref="DateTime.Now"/>.
+        /// Initializes a new instance of the <see cref="Foo{T}"/> class.
+        /// The object creation timestamp defaults to <see cref="DateTime.Now"/>.
         /// </summary>
         /// <param name="bar">
         /// The service responsible for ...
@@ -50,19 +51,5 @@ namespace T4Factories.Testbed.Models
         }
 
         #endregion
-    }
-
-    [GenerateT4FactoryWithContract]
-    public class FooBar : IFooBar
-    {
-        public int A { get; set; }
-
-        public int B { get; set; }
-
-        public FooBar(int a, [InjectedInT4Factory]int b)
-        {
-            this.A = a;
-            this.B = b;
-        }
     }
 }

@@ -1,3 +1,1 @@
-T4Factories
-===========
-T4 Factories uses T4toolbox to generate factory contracts and factory implementations automatically, based on a concrete class and a base interface.
+Visit the [https://github.com/PombeirP/T4Factories/wiki](https://github.com/PombeirP/T4Factories/wiki "wiki") for information about usage and prerequisites.
