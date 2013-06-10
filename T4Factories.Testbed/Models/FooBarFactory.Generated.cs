@@ -26,23 +26,6 @@
         
         #region Public Factory Methods
         
-        /// <remarks>
-        /// TODO: output documentation
-        /// </remarks>
-        public FooBarFactory([InjectedInT4Factory] System.Int32 b)
-        {
-                this.b = b;    
-        }
-        
-        /// <remarks>
-        /// TODO: output documentation
-        /// </remarks>
-        public T4Factories.Testbed.Contracts.IFooBar Create(System.Int32 a)
-        {    
-            return new T4Factories.Testbed.Models.FooBar(a, this.b);    
-        }
-        
-        
         public T4Factories.Testbed.Contracts.IFooBar Create(System.Int32 a)
         {        
             return new T4Factories.Testbed.Models.FooBar(

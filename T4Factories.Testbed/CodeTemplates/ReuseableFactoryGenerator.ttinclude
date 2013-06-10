@@ -445,30 +445,6 @@ if(injectedParameters2.Any())
 {
 #>
 
-/// <remarks>
-/// TODO: output documentation
-/// </remarks>
-public <#=factoryTypeName#>(<#=string.Join(", ", injectedParameters2.Select(parameter => GetParameterDefinition(parameter)))#>)
-{
-<#+
-        PushIndent("        ");       
-        foreach (var injectedParameter in injectedParameters2)
-        {
-#><#=GetParameterModifiers(injectedParameter) + GetParameterThisModifiers(injectedParameter) + injectedParameter.Name#> = <#=injectedParameter.Name#>;<#+
-        }
-		PopIndent();
-#>
-    
-}
-
-/// <remarks>
-/// TODO: output documentation
-/// </remarks>
-public <#=contractType.FullName#> Create(<#+WriteParameterDefinitionList(specifiedParameters); WriteLine(string.Empty);#>
-{    
-    return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + GetParameterThisModifiers(parameter) + parameter.Name))#>);    
-}
-
 <#+
 // end of if(injectedParameters2.Any())
 }
