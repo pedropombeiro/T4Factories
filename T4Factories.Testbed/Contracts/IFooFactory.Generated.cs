@@ -19,7 +19,6 @@
         /// The service responsible for ...
         /// </param>
         T4Factories.Testbed.Contracts.IFoo<T> Create(T bar);
-        
         #endregion
-    }
+        			    }
 }

@@ -32,7 +32,8 @@ namespace T4Factories.Testbed.Models
 
         public string[] Parse(string filePath)
         {
-            File file = this.fileSystem.GetFile(filePath);
+            object file = this.fileSystem.GetFile(filePath);
+            return new string[0];
         }
     }
 }

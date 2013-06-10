@@ -225,6 +225,18 @@ public class FactoryTemplate : CSharpTemplate
         return string.Join(string.Empty, modifiers.Select(m => m + " "));
     }
 
+	private string GetParameterThisModifiers(EnvDTE80.CodeParameter2 parameter)
+    {
+		var modifier = string.Empty;
+		bool needsThisModifier = parameter.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory"));
+		if (needsThisModifier)
+        {
+            modifier = "this.";
+        }
+
+        return modifier;
+    }
+
     private string GetParameterDefinition(EnvDTE80.CodeParameter2 parameter)
     {
         var defaultValue = string.Empty;
@@ -320,18 +332,23 @@ public partial interface <#=factoryContractTypeName#>
 {
 <#+
         PushIndent("    ");
-        foreach (var constructor in constructors)
+		if(constructors.Any())
         {
-            var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+			foreach (var constructor in constructors)
+			{
+				var allParameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+				var parameters = allParameters.Where(p => !p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
 #>
 #region Factory Methods
 <#=this.RenderXmlDoc(constructor.DocComment)#>
 <#=contractType.FullName#> Create(<#+this.WriteParameterDefinitionList(parameters);#>;
 <#+
+			}#>
+#endregion
+			<#+
         }
 #>
 
-#endregion
 <#+
         PopIndent();
         PopIndent();
@@ -414,6 +431,8 @@ public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters);
         foreach (var constructor in constructors)
         {
             var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+			var injectedParameters2 = parameters.Where(p => p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
+			var specifiedParameters = parameters.Where(p => !p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
             var inputParameters = from parameter in parameters
                                   where !injectedParameters.Any(injectedParameter => injectedParameter.FullName == parameter.FullName)
                                   select parameter;
@@ -425,10 +444,18 @@ public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters);
 
 #><#=this.RenderXmlDoc(constructor.DocComment)#><#+
             }
+#><#+
+if(injectedParameters2.Any())
+{
 #>
 
+<#+
+// end of if(injectedParameters2.Any())
+}
+#>
+<#=this.RenderXmlDoc(constructor.DocComment)#>
 public <#=contractType.FullName#> Create(<#+WriteParameterDefinitionList(inputParameters); WriteLine(string.Empty);#>
-{
+{        
     return new <#=concreteType.FullName#>(<#+this.WriteParameterList(parameters, parameter => injectedParameters.Any(injectedParameter => CompareParameters(injectedParameter, parameter)));#>
 }
 <#+
