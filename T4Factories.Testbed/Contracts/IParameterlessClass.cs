@@ -1,4 +1,4 @@
-namespace T4Factories.Testbed.Models
+namespace T4Factories.Testbed.Contracts
 {
     public interface IParameterlessClass
     {
