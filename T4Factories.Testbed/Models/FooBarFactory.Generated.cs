@@ -27,7 +27,7 @@
         #region Public Factory Methods
         
         public T4Factories.Testbed.Contracts.IFooBar Create(System.Int32 a)
-        {        
+        {
             return new T4Factories.Testbed.Models.FooBar(
                 a, 
                 this.b);

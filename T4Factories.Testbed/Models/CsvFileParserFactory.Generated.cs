@@ -1,6 +1,5 @@
 ﻿namespace T4Factories.Testbed.Models
 {
-    using System.IO;
     using T4Factories.Testbed.Contracts;
     
     /// <summary>
@@ -28,7 +27,7 @@
         #region Public Factory Methods
         
         public T4Factories.Testbed.Contracts.IFileParser Create(System.String delimiter)
-        {        
+        {
             return new T4Factories.Testbed.Models.CsvFileParser(
                 this.fileSystem, 
                 delimiter);

@@ -9,8 +9,9 @@
     public partial interface IFooBarFactory
     {
         #region Factory Methods
-        
+
         T4Factories.Testbed.Contracts.IFooBar Create(System.Int32 a);
+        
         #endregion
-        			    }
+    }
 }

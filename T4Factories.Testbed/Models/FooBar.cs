@@ -1,3 +1,8 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FooBar.cs" company="Developer In The Flow">
+//   © 2012-2013 Pedro Pombeiro
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 namespace T4Factories.Testbed.Models
 {
     using T4Factories.Testbed.Contracts;
@@ -5,14 +10,24 @@ namespace T4Factories.Testbed.Models
     [GenerateT4Factory]
     public class FooBar : IFooBar
     {
-        public int A { get; set; }
+        #region Constructors and Destructors
 
-        public int B { get; set; }
-
-        public FooBar(int a, [InjectedInT4Factory]int b)
+        public FooBar(
+            int a, 
+            [InjectedInT4Factory] int b)
         {
             this.A = a;
             this.B = b;
         }
+
+        #endregion
+
+        #region Public Properties
+
+        public int A { get; set; }
+
+        public int B { get; set; }
+
+        #endregion
     }
 }
