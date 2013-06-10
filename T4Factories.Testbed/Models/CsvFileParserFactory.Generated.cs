@@ -1,6 +1,5 @@
 ﻿namespace T4Factories.Testbed.Models
 {
-    using System.IO;
     using T4Factories.Testbed.Contracts;
     
     /// <summary>

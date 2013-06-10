@@ -41,11 +41,19 @@
     <Compile Include="Contracts\ICsvFileParserFactory.cs" />
     <Compile Include="Contracts\IFileSystem.cs" />
     <Compile Include="Contracts\IFoo.cs" />
+    <Compile Include="Contracts\IFooBar.cs" />
+    <Compile Include="Contracts\IFooBarFactory.Generated.cs" />
     <Compile Include="Contracts\IFooFactory.Generated.cs" />
+    <Compile Include="Contracts\IParameterlessClassFactory.Generated.cs" />
     <Compile Include="Models\CsvFileParser.cs" />
     <Compile Include="Models\CsvFileParserFactory.Generated.cs" />
     <Compile Include="Models\Foo.cs" />
+    <Compile Include="Models\FooBar.cs" />
+    <Compile Include="Models\FooBarFactory.Generated.cs" />
     <Compile Include="Models\FooFactory.Generated.cs" />
+    <Compile Include="Contracts\IParameterlessClass.cs" />
+    <Compile Include="Models\ParameterlessClass.cs" />
+    <Compile Include="Models\ParameterlessClassFactory.Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -54,9 +62,13 @@
     <None Include="CodeTemplates\Factories.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastOutputs>
+..\Contracts\IFooBarFactory.Generated.cs
 ..\Contracts\IFooFactory.Generated.cs
+..\Contracts\IParameterlessClassFactory.Generated.cs
 ..\Models\CsvFileParserFactory.Generated.cs
+..\Models\FooBarFactory.Generated.cs
 ..\Models\FooFactory.Generated.cs
+..\Models\ParameterlessClassFactory.Generated.cs
 .\Factories.Generated.cs
 </LastOutputs>
       <LastGenOutput>Factories.Generated.cs</LastGenOutput>
