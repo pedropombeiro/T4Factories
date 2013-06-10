@@ -332,19 +332,23 @@ public partial interface <#=factoryContractTypeName#>
 {
 <#+
         PushIndent("    ");
-        foreach (var constructor in constructors)
+		if(constructors.Any())
         {
-		    var allParameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
-            var parameters = allParameters.Where(p => !p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
+			foreach (var constructor in constructors)
+			{
+				var allParameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+				var parameters = allParameters.Where(p => !p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
 #>
 #region Factory Methods
 <#=this.RenderXmlDoc(constructor.DocComment)#>
 <#=contractType.FullName#> Create(<#+this.WriteParameterDefinitionList(parameters);#>;
 <#+
+			}#>
+#endregion
+			<#+
         }
 #>
 
-#endregion
 <#+
         PopIndent();
         PopIndent();
