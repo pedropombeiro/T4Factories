@@ -46,6 +46,10 @@
     <Compile Include="Models\CsvFileParserFactory.Generated.cs" />
     <Compile Include="Models\Foo.cs" />
     <Compile Include="Models\FooFactory.Generated.cs" />
+    <Compile Include="Models\IParameterlessClass.cs" />
+    <Compile Include="Models\IParameterlessClassFactory.Generated.cs" />
+    <Compile Include="Models\ParameterlessClass.cs" />
+    <Compile Include="Models\ParameterlessClassFactory.Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +61,8 @@
 ..\Contracts\IFooFactory.Generated.cs
 ..\Models\CsvFileParserFactory.Generated.cs
 ..\Models\FooFactory.Generated.cs
+..\Models\IParameterlessClassFactory.Generated.cs
+..\Models\ParameterlessClassFactory.Generated.cs
 .\Factories.Generated.cs
 </LastOutputs>
       <LastGenOutput>Factories.Generated.cs</LastGenOutput>
