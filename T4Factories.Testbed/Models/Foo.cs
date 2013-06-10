@@ -51,4 +51,18 @@ namespace T4Factories.Testbed.Models
 
         #endregion
     }
+
+    [GenerateT4FactoryWithContract]
+    public class FooBar : IFooBar
+    {
+        public int A { get; set; }
+
+        public int B { get; set; }
+
+        public FooBar(int a, [InjectedInT4Factory]int b)
+        {
+            this.A = a;
+            this.B = b;
+        }
+    }
 }

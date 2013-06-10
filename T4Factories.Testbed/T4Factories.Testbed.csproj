@@ -38,8 +38,11 @@
     </Compile>
     <Compile Include="Contracts\IBar.cs" />
     <Compile Include="Contracts\IFoo.cs" />
+    <Compile Include="Contracts\IFooBar.cs" />
+    <Compile Include="Contracts\IFooBarFactory.Generated.cs" />
     <Compile Include="Contracts\IFooFactory.Generated.cs" />
     <Compile Include="Models\Foo.cs" />
+    <Compile Include="Models\FooBarFactory.Generated.cs" />
     <Compile Include="Models\FooFactory.Generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -49,7 +52,9 @@
     <None Include="CodeTemplates\Factories.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastOutputs>
+..\Contracts\IFooBarFactory.Generated.cs
 ..\Contracts\IFooFactory.Generated.cs
+..\Models\FooBarFactory.Generated.cs
 ..\Models\FooFactory.Generated.cs
 .\Factories.Generated.cs
 </LastOutputs>

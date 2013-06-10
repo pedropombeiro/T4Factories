@@ -211,6 +211,18 @@ public class FactoryTemplate : CSharpTemplate
         return string.Join(string.Empty, modifiers.Select(m => m + " "));
     }
 
+	private string GetParameterThisModifiers(EnvDTE80.CodeParameter2 parameter)
+    {
+		var modifier = string.Empty;
+		bool needsThisModifier = parameter.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory"));
+		if (needsThisModifier)
+        {
+            modifier = "this.";
+        }
+
+        return modifier;
+    }
+
     private string GetParameterDefinition(EnvDTE80.CodeParameter2 parameter)
     {
         var defaultValue = string.Empty;
@@ -253,7 +265,8 @@ namespace <#=this.codeNamespace.FullName#>
         var index = 0;
         foreach (var constructor in constructors)
         {
-            var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+		    var allParameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+            var parameters = allParameters.Where(p => !p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
             if (index++ > 0)
             {
 #><#=string.Empty#>
@@ -283,16 +296,53 @@ namespace <#=this.codeNamespace.FullName#>
         foreach (var constructor in constructors)
         {
             var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+			var injectedParameters = parameters.Where(p => p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
+			var specifiedParameters = parameters.Where(p => !p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
             if (index2++ > 0)
             {
 #><#=string.Empty#>
 <#+
             }
+#><#+
+if(injectedParameters.Any())
+{
+#>
+<#+          
+        foreach (var injectedParameter in injectedParameters)
+        {
+#>
+/// <remarks>
+/// TODO: output documentation
+/// </remarks>
+<#=injectedParameter.Type.AsFullName#> <#=injectedParameter.Name#>;
+<#+
+        }
+#>
+
+/// <remarks>
+/// TODO: output documentation
+/// </remarks>
+public <#=factoryTypeName#>(<#=string.Join(", ", injectedParameters.Select(parameter => GetParameterDefinition(parameter)))#>)
+{
+<#+
+        PushIndent("        ");       
+        foreach (var injectedParameter in injectedParameters)
+        {
+#><#=GetParameterModifiers(injectedParameter) + GetParameterThisModifiers(injectedParameter) + injectedParameter.Name#> = <#=injectedParameter.Name#>;<#+
+        }
+		PopIndent();
+#>
+    
+}
+
+<#+
+// end of if(injectedParameters.Any())
+}
 #>
 <#=this.RenderXmlDoc(constructor.DocComment)#>
-public <#=contractType.FullName#> Create(<#=string.Join(", ", parameters.Select(parameter => GetParameterDefinition(parameter)))#>)
+public <#=contractType.FullName#> Create(<#=string.Join(", ", specifiedParameters.Select(parameter => GetParameterDefinition(parameter)))#>)
 {
-    return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + parameter.Name))#>);
+    return new <#=concreteType.FullName#>(<#=string.Join(", ", parameters.Select(parameter => GetParameterModifiers(parameter) + GetParameterThisModifiers(parameter) + parameter.Name))#>);
 }
 <#+
         }
