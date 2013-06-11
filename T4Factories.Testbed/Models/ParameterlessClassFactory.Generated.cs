@@ -11,6 +11,10 @@
     {
         #region Public Factory Methods
         
+        public T4Factories.Testbed.Contracts.IParameterlessClass Create()
+        {
+            return new T4Factories.Testbed.Models.ParameterlessClass();
+        }
         
         #endregion
     }

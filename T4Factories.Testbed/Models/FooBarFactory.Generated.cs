@@ -17,7 +17,7 @@
         
         #region Constructors
         
-        public FooBarFactory([InjectedInT4Factory] System.Int32 b)
+        public FooBarFactory(System.Int32 b)
         {
             this.b = b;
         }

@@ -172,11 +172,10 @@ public class FactoryTemplate : CSharpTemplate
     {
         var docXml = string.Join("\r\n/// ",
                                  docComment.Trim()
-                                            .Replace("<doc>", string.Empty)
-                                            .Replace("</doc>", string.Empty)
-                                            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-                          .TrimEnd();
-        return string.IsNullOrEmpty(docXml) ? string.Empty : docXml + "\r\n";
+                                           .Replace("<doc>", string.Empty)
+                                           .Replace("</doc>", string.Empty)
+                                           .Split(new[] { '\n' , '\r'}, StringSplitOptions.RemoveEmptyEntries));
+        return string.IsNullOrEmpty(docXml) ? string.Empty : string.Format("/// {0}\r\n", docXml);
     }
 
     private void WriteUsingsRequiredFor(EnvDTE.CodeElement codeElement, EnvDTE.CodeNamespace targetNamespace)
@@ -197,12 +196,15 @@ public class FactoryTemplate : CSharpTemplate
 
     private string GetParameterAttributes(EnvDTE.CodeParameter parameter)
     {
-        if (parameter.Attributes.Count == 0)
+        var attributes = from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>()
+                         where attribute.Name != "InjectedInT4Factory"
+                         select attribute;
+        if (attributes.Any())
         {
-            return string.Empty;
+            return string.Format("[{0}] ", string.Join(", ", from attribute in attributes select attribute.Name));
         }
 
-        return string.Format("[{0}] ", string.Join(", ", from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>() select attribute.Name));
+        return string.Empty;
     }
 
     private string GetParameterModifiers(EnvDTE80.CodeParameter2 parameter)
@@ -290,6 +292,11 @@ public class FactoryTemplate : CSharpTemplate
         PopIndent();
     }
 
+    private bool IsParameterInjected(EnvDTE80.CodeParameter2 parameter)
+    {
+        return parameter.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory"));
+    }
+
     #endregion
 
     public override string TransformText()
@@ -326,8 +333,7 @@ public partial interface <#=factoryContractTypeName#>
             {
                 var allParameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
                 var parameters = from parameter in allParameters
-                                 let attributes = parameter.Attributes.Cast<EnvDTE.CodeAttribute>()
-                                 where !attributes.Any(attribute => attribute.FullName.Contains("InjectedInT4Factory"))
+                                 where !IsParameterInjected(parameter)
                                  select parameter;
 
                 WriteLine("#region Factory Methods");
@@ -335,13 +341,18 @@ public partial interface <#=factoryContractTypeName#>
                 Write(this.RenderXmlDoc(constructor.DocComment));#>
 <#=contractType.FullName#> Create(<#+this.WriteParameterDefinitionList(parameters);#>;
 <#+
-            }#>
-
-#endregion
+            }
+        }
+        else
+        {
+            WriteLine("#region Factory Methods");
+            WriteLine(string.Empty);#>
+<#=contractType.FullName#> Create();
 <#+
         }
 #>
 
+#endregion
 <#+
         PopIndent();
         PopIndent();
@@ -422,26 +433,38 @@ public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters);
         // Generate the factory methods (one for each public constructor on the target object)
         //////////////////////////////////////////////////////////////////////////////////////////////
 
-        foreach (var constructor in constructors)
+        if (constructors.Any())
         {
-            var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
-            var explicitlyInjectedParameters = parameters.Where(p => p.Attributes.Cast<EnvDTE.CodeAttribute>().Any(a => a.FullName.Contains("InjectedInT4Factory")));
-            var allInjectedParameters = injectedParameters.Concat(explicitlyInjectedParameters);
-            var inputParameters = from parameter in parameters
-                                  where !allInjectedParameters.Any(injectedParameter => injectedParameter.FullName == parameter.FullName)
-                                  select parameter;
-            if (!allInjectedParameters.Any())
+            foreach (var constructor in constructors)
             {
-                //////////////////////////////////////////////////////////////////////////////////////////////
-                // Include the documentation found in the target constructor (when there is a signature match)
-                //////////////////////////////////////////////////////////////////////////////////////////////
+                var parameters = constructor.Parameters.Cast<EnvDTE80.CodeParameter2>();
+                var explicitlyInjectedParameters = parameters.Where(p => IsParameterInjected(p));
+                var allInjectedParameters = injectedParameters.Concat(explicitlyInjectedParameters);
+                var inputParameters = from parameter in parameters
+                                      where !allInjectedParameters.Any(injectedParameter => injectedParameter.FullName == parameter.FullName)
+                                      select parameter;
+                if (!allInjectedParameters.Any())
+                {
+                    //////////////////////////////////////////////////////////////////////////////////////////////
+                    // Include the documentation found in the target constructor (when there is a signature match)
+                    //////////////////////////////////////////////////////////////////////////////////////////////
 
-                Write(this.RenderXmlDoc(constructor.DocComment));
-            }
+                    Write(this.RenderXmlDoc(constructor.DocComment));
+                }
 #>
 public <#=contractType.FullName#> Create(<#+WriteParameterDefinitionList(inputParameters); WriteLine(string.Empty);#>
 {
     return new <#=concreteType.FullName#>(<#+this.WriteParameterList(parameters, parameter => allInjectedParameters.Any(injectedParameter => CompareParameters(injectedParameter, parameter)));#>
+}
+<#+
+            }
+        }
+        else
+        {
+#>
+public <#=contractType.FullName#> Create()
+{
+    return new <#=concreteType.FullName#>();
 }
 <#+
         }
