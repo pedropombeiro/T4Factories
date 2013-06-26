@@ -69,10 +69,10 @@ public class FactoryTemplate : CSharpTemplate
         {
             var codeAttribute = codeClass.Attributes.Cast<EnvDTE.CodeAttribute>().Single(predicate);
             var attributeValue = codeAttribute.Value.Trim();
-            var contractName = attributeValue.StartsWith("typeof(") ? attributeValue.Substring(7).TrimEnd(')') : string.Format("I{0}", codeClass.Name);
+            var contractInterfaceName = attributeValue.StartsWith("typeof(") ? attributeValue.Substring(7).TrimEnd(')') : string.Format("I{0}", codeClass.Name);
 
             this.GenerateFactoryFor(codeClass)
-                .WithContract(contractName);
+                .WithContract(contractInterfaceName);
         }
     }
 
@@ -90,13 +90,8 @@ public class FactoryTemplate : CSharpTemplate
         this.RenderFactoryForCodeElement(Renderer.FactoryImplementation, (EnvDTE.CodeType)this.concreteType, GetSafeFileName(GetFactoryClassName(this.concreteType)));
 
         var factoryInterfaceFullName = GetFactoryInterfaceFullName(this.contractType, this.concreteType);
-        var factoryCodeInterface = (from codeInterface in this.allInterfaces
-                                    where codeInterface.FullName == factoryInterfaceFullName
-                                    let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
-                                    where !attributes.Any(a => a.FullName.Contains("System.CodeDom.Compiler.GeneratedCodeAttribute"))
-                                    select codeInterface)
-                                    .SingleOrDefault();
-        if (factoryCodeInterface == null)
+        if (!UserGeneratedInterfaceExists(factoryInterfaceFullName) &&
+            !UserGeneratedInterfaceExists(string.Format("{0}Factory", contractInterfaceName)))
         {
             this.RenderFactoryForCodeElement(Renderer.FactoryInterface, (EnvDTE.CodeType)this.contractType, GetSafeFileName(GetFactoryInterfaceName(this.concreteType)));
         }
@@ -105,6 +100,16 @@ public class FactoryTemplate : CSharpTemplate
     #endregion
 
     #region Methods
+
+    private bool UserGeneratedInterfaceExists(string interfaceFullName)
+    {
+        return (from codeInterface in this.allInterfaces
+                                    where codeInterface.FullName == interfaceFullName
+                                    let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
+                                    where !attributes.Any(a => a.FullName.Contains("System.CodeDom.Compiler.GeneratedCodeAttribute"))
+                                    select codeInterface)
+               .Any();
+    }
 
     private string GetSafeFileName(string identifier)
     {
@@ -128,9 +133,13 @@ public class FactoryTemplate : CSharpTemplate
         return codeClass.IsGeneric ? codeClass.FullName.Substring(codeClass.FullName.IndexOf('<')) : string.Empty;
     }
 
-    private static string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType, EnvDTE80.CodeClass2 concreteType)
+    private string GetFactoryInterfaceFullName(EnvDTE.CodeInterface contractType, EnvDTE80.CodeClass2 concreteType)
     {
         var factoryInterfaceFullName = string.Format("{0}.I{1}Factory{2}", contractType.Namespace.FullName, concreteType.Name, GetGenericArguments(concreteType));
+        if (!UserGeneratedInterfaceExists(factoryInterfaceFullName))
+        {
+            factoryInterfaceFullName = string.Format("{0}.{1}Factory{2}", contractType.Namespace.FullName, contractType.Name, GetGenericArguments(concreteType));
+        }
 
         return factoryInterfaceFullName;
     }
@@ -194,6 +203,18 @@ public class FactoryTemplate : CSharpTemplate
         }
     }
 
+    private string GetAttributeBlock(IEnumerable<EnvDTE.CodeAttribute> attributes, string separator)
+    {
+        if (attributes.Any())
+        {
+            return string.Join(string.Empty, 
+                               from attribute in attributes
+                               select string.Format("[{0}]{1}", attribute.Name, separator));
+        }
+
+        return string.Empty;
+    }
+
     private string GetParameterAttributes(EnvDTE.CodeParameter parameter)
     {
         var attributes = from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>()
@@ -201,7 +222,7 @@ public class FactoryTemplate : CSharpTemplate
                          select attribute;
         if (attributes.Any())
         {
-            return string.Format("[{0}] ", string.Join(", ", from attribute in attributes select attribute.Name));
+            return GetAttributeBlock(attributes, " ");
         }
 
         return string.Empty;
@@ -405,11 +426,16 @@ private <#=GetParameterTypeFullName(injectedParameter)#> <#=injectedParameter.Fu
 
 #region Constructors
 
+<#+
+if (constructors.SelectMany(ctor => ctor.Attributes.Cast<EnvDTE.CodeAttribute>()).Any())
+{
+    Write(GetAttributeBlock(constructors.Single().Attributes.Cast<EnvDTE.CodeAttribute>(), "\r\n"));
+}
+#>
 public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters); WriteLine(string.Empty);#>
 {
 <#+
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // Generate the factory constructor (when there are fields to be injected at construction time)
+    //////////////////////////////////////////////////////////////////////////////93construction time)
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     foreach (var injectedParameter in injectedParameters)
