@@ -11,7 +11,7 @@
     {
         #region Fields
         
-        private T4Factories.Testbed.Contracts.IFileSystem fileSystem;
+        private readonly T4Factories.Testbed.Contracts.IFileSystem fileSystem;
         
         #endregion
         

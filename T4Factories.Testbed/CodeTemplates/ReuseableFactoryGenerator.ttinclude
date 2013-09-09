@@ -1,4 +1,4 @@
-﻿<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Core" #>
 <#@ assembly name="System" #>
 <#@ include file="T4Toolbox.tt" #>
 <#@ import namespace="System.Linq" #>
@@ -417,7 +417,7 @@ public partial class <#=factoryTypeName#> : <#=factoryContractTypeFullName#>
     foreach (var injectedParameter in injectedParameters)
     {
 #>
-private <#=GetParameterTypeFullName(injectedParameter)#> <#=injectedParameter.FullName#>;
+private readonly <#=GetParameterTypeFullName(injectedParameter)#> <#=injectedParameter.FullName#>;
 
 <#+
     }

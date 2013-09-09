@@ -11,7 +11,7 @@
     {
         #region Fields
         
-        private System.Int32 b;
+        private readonly System.Int32 b;
         
         #endregion
         
