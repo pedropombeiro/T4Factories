@@ -4,7 +4,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#+ 
-public class FactoryTemplate : CSharpTemplate
+public class FactoryTemplate : Template
 {
     private const string GeneratedCodeAttribute = "global::System.CodeDom.Compiler.GeneratedCode(\"T4Factories\", \"0.1\")";
 
@@ -138,7 +138,11 @@ public class FactoryTemplate : CSharpTemplate
         var factoryInterfaceFullName = string.Format("{0}.I{1}Factory{2}", contractType.Namespace.FullName, concreteType.Name, GetGenericArguments(concreteType));
         if (!UserGeneratedInterfaceExists(factoryInterfaceFullName))
         {
-            factoryInterfaceFullName = string.Format("{0}.{1}Factory{2}", contractType.Namespace.FullName, contractType.Name, GetGenericArguments(concreteType));
+            var fallbackFactoryInterfaceFullName = string.Format("{0}.{1}Factory{2}", contractType.Namespace.FullName, contractType.Name, GetGenericArguments(concreteType));
+            if (UserGeneratedInterfaceExists(fallbackFactoryInterfaceFullName))
+            {
+                factoryInterfaceFullName = fallbackFactoryInterfaceFullName;
+            }
         }
 
         return factoryInterfaceFullName;
@@ -218,7 +222,7 @@ public class FactoryTemplate : CSharpTemplate
     private string GetParameterAttributes(EnvDTE.CodeParameter parameter)
     {
         var attributes = from attribute in parameter.Attributes.Cast<EnvDTE.CodeAttribute>()
-                         where attribute.Name != "InjectedInT4Factory"
+                         where !attribute.FullName.Contains("InjectedInT4Factory")
                          select attribute;
         if (attributes.Any())
         {
@@ -435,7 +439,8 @@ if (constructors.SelectMany(ctor => ctor.Attributes.Cast<EnvDTE.CodeAttribute>()
 public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters); WriteLine(string.Empty);#>
 {
 <#+
-    //////////////////////////////////////////////////////////////////////////////93construction time)
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Generate the factory constructor (when there are fields to be injected at construction time)
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     foreach (var injectedParameter in injectedParameters)
@@ -467,7 +472,7 @@ public <#=factoryTypeName#>(<#+WriteParameterDefinitionList(injectedParameters);
                 var explicitlyInjectedParameters = parameters.Where(p => IsParameterInjected(p));
                 var allInjectedParameters = injectedParameters.Concat(explicitlyInjectedParameters);
                 var inputParameters = from parameter in parameters
-                                      where !allInjectedParameters.Any(injectedParameter => injectedParameter.FullName == parameter.FullName)
+                                      where !allInjectedParameters.Any(injectedParameter => CompareParameters(injectedParameter, parameter))
                                       select parameter;
                 if (!allInjectedParameters.Any())
                 {
