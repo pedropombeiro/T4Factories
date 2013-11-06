@@ -139,7 +139,24 @@ public class FactoryTemplate : Template
         if (!UserGeneratedInterfaceExists(factoryInterfaceFullName))
         {
             var fallbackFactoryInterfaceFullName = string.Format("{0}.{1}Factory{2}", contractType.Namespace.FullName, contractType.Name, GetGenericArguments(concreteType));
-            if (UserGeneratedInterfaceExists(fallbackFactoryInterfaceFullName))
+            if (!UserGeneratedInterfaceExists(fallbackFactoryInterfaceFullName))
+            {
+                // Is there any interface with the correct factory name in or below the concrete type namespace?
+                var factoryInterfaceName = GetFactoryInterfaceName(this.concreteType);
+                fallbackFactoryInterfaceFullName = (from codeInterface in this.allInterfaces
+                                                    where codeInterface.Name == factoryInterfaceName
+                                                    let attributes = codeInterface.Attributes.Cast<EnvDTE.CodeAttribute>()
+                                                    where !attributes.Any(a => a.FullName.Contains("System.CodeDom.Compiler.GeneratedCodeAttribute"))
+                                                    where codeInterface.Namespace.FullName.StartsWith(this.concreteType.Namespace.FullName)
+                                                    select codeInterface.FullName)
+                                                   .FirstOrDefault();
+
+                if (fallbackFactoryInterfaceFullName != null)
+                {
+                    factoryInterfaceFullName = fallbackFactoryInterfaceFullName;
+                }
+            }
+            else
             {
                 factoryInterfaceFullName = fallbackFactoryInterfaceFullName;
             }
@@ -331,6 +348,8 @@ public class FactoryTemplate : Template
 string factoryContractTypeName = GetFactoryInterfaceName(this.concreteType);
 string factoryContractTypeFullName = GetFactoryInterfaceFullName(this.contractType, this.concreteType);
 string factoryTypeName = GetFactoryClassName(this.concreteType);#>
+#pragma warning disable 1591
+
 namespace <#=this.codeNamespace.FullName#>
 {
 <#+
@@ -352,6 +371,7 @@ public partial interface <#=factoryContractTypeName#>
 {
 <#+
         PushIndent("    ");
+        WriteLine("#region Factory Methods");
         if (constructors.Any())
         {
             foreach (var constructor in constructors)
@@ -361,7 +381,6 @@ public partial interface <#=factoryContractTypeName#>
                                  where !IsParameterInjected(parameter)
                                  select parameter;
 
-                WriteLine("#region Factory Methods");
                 WriteLine(string.Empty);
                 Write(this.RenderXmlDoc(constructor.DocComment));#>
 <#=contractType.FullName#> Create(<#+this.WriteParameterDefinitionList(parameters);#>;
@@ -370,7 +389,6 @@ public partial interface <#=factoryContractTypeName#>
         }
         else
         {
-            WriteLine("#region Factory Methods");
             WriteLine(string.Empty);#>
 <#=contractType.FullName#> Create();
 <#+
